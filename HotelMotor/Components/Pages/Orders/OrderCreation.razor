@@ -1,0 +1,52 @@
+﻿@page "/orders/creation"
+
+<h1>Crear Orden</h1>
+
+<form action="/" method="post">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-4">
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" name="summary" id="summary" placeholder="" required></textarea>
+                    <label for="vehicle-type">Resumen del proceso realizado</label>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-auto overflow-x-hidden" style="max-height: 300px;">
+            <div class="row d-flex justify-content-center align-items-center">
+                <div class="col-md-3">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" name="service" id="service">
+                            <option value="" disabled selected>Seleccionar el servicio</option>
+                            <option value="1">Forjar pistones</option>
+                            <option value="2">Programar ECU en Stage 3</option>
+                        </select>
+                        <label for="service">Servicio</label>
+                    </div>
+                </div>
+                <div class="col-md-1 d-flex justify-content-center">
+                    <button class="btn btn-danger" style="width: 100%;">
+                        -
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row d-flex justify-content-center">
+            <div class=" d-flex justify-content-center">
+                <p>
+                    Total: $999.999
+                </p>
+            </div>
+        </div>
+        <div class="row d-flex justify-content-center">
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary">Guardar Orden</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+@code {
+
+}
