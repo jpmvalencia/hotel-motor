@@ -1,69 +1,35 @@
 ﻿@page "/vehicles"
 <div class="container">
-		<h1>Listado de vehículos</h1>
-		
-        <div class="d-flex justify-content-center m-3">
+    <h1>Listado de vehículos</h1>
+  
+    @if (vehicles == null || !vehicles.Any())
+    {
+        <p>No hay vehículos registrados...</p>
+    }
+    else {
+        <div class="row">
+        <!-- Listing vehicles on cards -->
+        @foreach (var vehicle in vehicles)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center text-primary"><strong>@vehicle.PlateNumber</strong></h5>
+                        <!-- default image depending on the vehicle type -->
+                        <img src="@GetVehicleImage(vehicle.VehicleType)" alt="@vehicle.VehicleType" class="img-fluid mb-3" />
+                        <ul class="list-unstyled">
+                            <li><strong>Tipo de vehículo: </strong>@vehicle.VehicleType</li>
+                            <li><strong>Marca: </strong>@vehicle.Brand</li>
+                            <li><strong>Modelo: </strong>@vehicle.Model</li>
+                            <li><strong>Año: </strong>@vehicle.Year</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+        </div>
+    }
+    <div class="d-flex justify-content-center m-3">
         <a class="btn btn-primary" href="/vehicles-registration">Añadir vehículo</a>
-        </div>
-	<div class="row">
-    <div class="col-md-4 mb-3">
-        <div class="card">
-            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Vehículo 1">
-            <div class="card-body">
-                <h5 class="card-title">Vehículo 1</h5>
-                <p class="card-text">Descripción breve del vehículo 1. Ideal para la ciudad y viajes largos.</p>
-                <a href="#" class="btn btn-primary">Ver detalles</a>
-            </div>
-        </div>
-    </div>
-    <!-- Tarjeta 2 -->
-        <div class="col-md-4 mb-3">
-        <div class="card">
-            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Vehículo 2">
-            <div class="card-body">
-                <h5 class="card-title">Vehículo 2</h5>
-                <p class="card-text">Descripción breve del vehículo 2. Con un gran rendimiento de combustible.</p>
-                <a href="#" class="btn btn-primary">Ver detalles</a>
-            </div>
-        </div>
-    </div>
-    <!-- Tarjeta 2 -->
-        <div class="col-md-4 mb-3">
-        <div class="card">
-            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Vehículo 2">
-            <div class="card-body">
-                <h5 class="card-title">Vehículo 2</h5>
-                <p class="card-text">Descripción breve del vehículo 2. Con un gran rendimiento de combustible.</p>
-                <a href="#" class="btn btn-primary">Ver detalles</a>
-            </div>
-        </div>
-    </div>
-    <!-- Tarjeta 2 -->
-        <div class="col-md-4 mb-3">
-        <div class="card">
-            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Vehículo 2">
-            <div class="card-body">
-                <h5 class="card-title">Vehículo 2</h5>
-                <p class="card-text">Descripción breve del vehículo 2. Con un gran rendimiento de combustible.</p>
-                <a href="#" class="btn btn-primary">Ver detalles</a>
-            </div>
-        </div>
-    </div>
-    <!-- Tarjeta 2 -->
-        <div class="col-md-4 mb-3">
-        <div class="card">
-            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Vehículo 2">
-            <div class="card-body">
-                <h5 class="card-title">Vehículo 2</h5>
-                <p class="card-text">Descripción breve del vehículo 2. Con un gran rendimiento de combustible.</p>
-                <a href="#" class="btn btn-primary">Ver detalles</a>
-            </div>
-        </div>
-    </div>
- 
+    </div>  
 </div>
-</div>
-
-@code {
-
-}
