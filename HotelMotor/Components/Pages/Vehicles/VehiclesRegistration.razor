@@ -2,15 +2,18 @@
 
 <h1>Registro de Vehículos</h1>
 
-<form action="/" method="post">
+<EditForm Model="newVehicle" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
     <div class="container">
         <div class="row d-flex justify-content-center">
             <div class="col-md-4">
                 <div class="form-floating mb-3">
-                    <select class="form-select" name="vehicle-type" id="vehicle-type">
+                    <select class="form-select" @bind="newVehicle.VehicleType" id="vehicle-type" required>
                         <option value="" disabled selected>Seleccionar tipo de vehículo</option>
-                        <option value="1">Carro</option>
-                        <option value="2">Moto</option>
+                        <option value="Car">Carro</option>
+                        <option value="Motorcycle">Moto</option>
                     </select>
                     <label for="vehicle-type">Tipo de Vehículo</label>
                 </div>
@@ -19,21 +22,21 @@
         <div class="row d-flex justify-content-center">
             <div class="col-md-4">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="brand" id="brand" placeholder="" required>
+                    <input type="text" class="form-control" @bind="newVehicle.Brand" id="brand" placeholder="" required>
                     <label for="brand">Marca</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="model" id="model" placeholder="" required>
+                    <input type="text" class="form-control" @bind="newVehicle.Model" id="model" placeholder="" required>
                     <label for="model">Modelo</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-floating mb-3">
-                    <input type="number" class="form-control" name="year" id="year" placeholder="" required>
+                    <input type="number" class="form-control" @bind="newVehicle.Year" id="year" placeholder="" required>
                     <label for="year">Año</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="plate" id="plate" placeholder="" required>
+                    <input type="text" class="form-control" @bind="newVehicle.PlateNumber" id="plate" placeholder="" required>
                     <label for="plate">Número de Matrícula</label>
                 </div>
             </div>
@@ -43,8 +46,4 @@
             </div>
         </div>
     </div>
-</form>
-
-@code {
-
-}
+</EditForm>
