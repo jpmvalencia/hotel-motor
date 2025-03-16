@@ -9,11 +9,15 @@ namespace HotelMotor.Components.Pages.Vehicles
         [Inject]
         private VehicleService VehicleService { get; set; }
 
+        [Inject]
+        private NavigationManager NavigationManager { get; set; }
+
         private Vehicle newVehicle = new Vehicle();
 
         private void HandleValidSubmit()
         {
             VehicleService.AddVehicle(newVehicle);
+            NavigationManager.NavigateTo("/");
         }
     }
 }
