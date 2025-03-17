@@ -16,7 +16,7 @@
                     <div class="card-body">
                         <h5 class="card-title text-center text-primary"><strong>@vehicle.PlateNumber</strong></h5>
                         <!-- default image depending on the vehicle type -->
-                        <img src="@GetVehicleImage(vehicle.VehicleType)" alt="@vehicle.VehicleType" class="img-fluid mb-3" />
+                        <img src="@GetVehicleImage(vehicle.VehicleImage, vehicle.VehicleType)" alt="@vehicle.VehicleType" class="img-fluid mb-3" style="width: 250px; height: 250px;"/>
                         <ul class="list-unstyled">
                             <li><strong>Tipo de vehículo: </strong>@vehicle.VehicleType</li>
                             <li><strong>Marca: </strong>@vehicle.Brand</li>
