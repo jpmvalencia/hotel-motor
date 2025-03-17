@@ -1,10 +1,13 @@
 using HotelMotor.Components;
+using HotelMotor.Modules.Vehicles;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<VehicleService>();
 
 var app = builder.Build();
 
