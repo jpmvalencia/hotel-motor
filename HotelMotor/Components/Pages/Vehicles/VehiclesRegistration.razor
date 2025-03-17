@@ -38,6 +38,19 @@
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control" @bind="newVehicle.PlateNumber" id="plate" placeholder="" required>
                     <label for="plate">Número de Matrícula</label>
+                </div>                
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <label for="vehicle-image">Imagen del vehículo</label>
+                    <div class="form-label mb-3">
+                        <InputFile class="custom-file-label" accept=".jpg,.jpeg,.png"
+                                   @bind-Value="newVehicle.VehicleImage" id="vehicle-image" OnChange="HandleImageFile" />
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger">@errorMessage</div>
+                        }
+                    </div>
                 </div>
             </div>
             <div class="d-flex justify-content-center">
