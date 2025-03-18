@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HotelMotor.Modules.Orders.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace HotelMotor.Modules.Vehicles.Models
 {
@@ -24,5 +25,6 @@ namespace HotelMotor.Modules.Vehicles.Models
         public string PlateNumber { get; set; }
 
         public byte[] VehicleImage { get; set; }
+        public List<Order> Orders { get; set; }
     }
 }
