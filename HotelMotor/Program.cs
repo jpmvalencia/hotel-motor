@@ -1,4 +1,7 @@
 using HotelMotor.Components;
+using HotelMotor.Modules.OrderDetails;
+using HotelMotor.Modules.Orders;
+using HotelMotor.Modules.Services;
 using HotelMotor.Modules.Vehicles;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +11,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<VehicleService>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<OrderDetailService>();
+builder.Services.AddScoped<ServiceService>();
 
 var app = builder.Build();
 
