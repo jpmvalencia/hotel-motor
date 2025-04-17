@@ -11,7 +11,7 @@ namespace HotelMotorApi.Common
         public DbSet<OrderService> OrderServices { get; set; }
         public DbSet<Service> Services { get; set; }
 
-        public ApplicationDbContext(DbContextOptions options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
     }

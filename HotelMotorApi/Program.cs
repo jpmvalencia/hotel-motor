@@ -1,6 +1,9 @@
 using HotelMotorApi.Common;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
+using HotelMotorApi.Interfaces;
+using HotelMotorApi.Services;
+using HotelMotorApi.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +14,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 DotNetEnv.Env.Load();
 
 string dbName = Environment.GetEnvironmentVariable("DB_NAME");
@@ -19,7 +21,17 @@ string user = Environment.GetEnvironmentVariable("DB_USER");
 string password = Environment.GetEnvironmentVariable("DB_PASSWORD");
 string connectionString = $"Server=localhost,1433;Database={dbName};User={user};Password={password};TrustServerCertificate=True;";
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, sqlOptions =>
+{
+    sqlOptions.EnableRetryOnFailure(
+        maxRetryCount: 5,
+        maxRetryDelay: TimeSpan.FromSeconds(30),
+        errorNumbersToAdd: null);
+}));
+
+builder.Services.AddScoped<IVehiclesService, VehiclesService>();
+builder.Services.AddScoped<IVehiclesRepository, VehiclesRepository>();
+
 
 var app = builder.Build();
 
