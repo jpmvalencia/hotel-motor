@@ -8,4 +8,11 @@
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>HotelMotorShared</Import_RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Customer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Order.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\OrderService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Service.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Vehicle.cs" />
+  </ItemGroup>
 </Project>
