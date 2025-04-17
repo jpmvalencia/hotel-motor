@@ -1,0 +1,32 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ${SQL_CONTAINER_NAME}
+    env_file:
+      - .env
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+    ports:
+      - "${SQL_PORT}:${SQL_PORT_INTERNAL}"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    restart: always
+
+  init-db:
+    image: mcr.microsoft.com/mssql-tools
+    depends_on:
+      - sqlserver
+    env_file:
+      - .env
+    volumes:
+      - ./sql/init.sql:/init/init.sql
+    entrypoint: >
+      /bin/bash -c "
+      echo 'Waiting ${DB_INIT_DELAY} seconds for SQL Server to start...';
+      sleep ${DB_INIT_DELAY};
+      /opt/mssql-tools/bin/sqlcmd -S ${SQL_HOST} -U SA -P '${SA_PASSWORD}' -i /init/init.sql
+      "
+
+volumes:
+  sqlserver-data:

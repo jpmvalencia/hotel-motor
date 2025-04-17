@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelMotorApi", "HotelMotorApi\HotelMotorApi.csproj", "{F247E6BC-DB98-4FCB-AE6B-C522FBFFFF41}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelMotorWeb", "HotelMotorWeb\HotelMotorWeb.csproj", "{3D84590C-D2AF-4323-9420-3A44C3B08FC5}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "HotelMotorShared", "HotelMotorShared\HotelMotorShared.shproj", "{D54D2341-1A04-4973-A150-6A59894E93D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F247E6BC-DB98-4FCB-AE6B-C522FBFFFF41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F247E6BC-DB98-4FCB-AE6B-C522FBFFFF41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F247E6BC-DB98-4FCB-AE6B-C522FBFFFF41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F247E6BC-DB98-4FCB-AE6B-C522FBFFFF41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D84590C-D2AF-4323-9420-3A44C3B08FC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D84590C-D2AF-4323-9420-3A44C3B08FC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D84590C-D2AF-4323-9420-3A44C3B08FC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D84590C-D2AF-4323-9420-3A44C3B08FC5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8B7565FA-88CF-41A4-B358-FE7D1F4E82C6}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		HotelMotorShared\HotelMotorShared.projitems*{3d84590c-d2af-4323-9420-3a44c3b08fc5}*SharedItemsImports = 5
+		HotelMotorShared\HotelMotorShared.projitems*{d54d2341-1a04-4973-a150-6a59894e93d8}*SharedItemsImports = 13
+		HotelMotorShared\HotelMotorShared.projitems*{f247e6bc-db98-4fcb-ae6b-c522fbffff41}*SharedItemsImports = 5
+	EndGlobalSection
+EndGlobal
