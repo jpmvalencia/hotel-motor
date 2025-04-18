@@ -15,7 +15,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 DotNetEnv.Env.Load();
 
 string dbName = Environment.GetEnvironmentVariable("DB_NAME");
@@ -23,13 +22,22 @@ string user = Environment.GetEnvironmentVariable("DB_USER");
 string password = Environment.GetEnvironmentVariable("DB_PASSWORD");
 string connectionString = $"Server=localhost,1433;Database={dbName};User={user};Password={password};TrustServerCertificate=True;";
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, sqlOptions =>
+{
+    sqlOptions.EnableRetryOnFailure(
+        maxRetryCount: 5,
+        maxRetryDelay: TimeSpan.FromSeconds(30),
+        errorNumbersToAdd: null);
+}));
+
 // Automapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Repositories
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IVehiclesRepository, VehiclesRepository>();
 //Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IVehiclesService, VehiclesService>();
 
 var app = builder.Build();
 
