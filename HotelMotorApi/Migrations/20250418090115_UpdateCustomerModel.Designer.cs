@@ -4,6 +4,7 @@ using HotelMotorApi.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelMotorApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250418090115_UpdateCustomerModel")]
+    partial class UpdateCustomerModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,39 +24,6 @@ namespace HotelMotorApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("HotelMotorShared.DTOs.CustomerDTO", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.PrimitiveCollection<string>("VehicleIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CustomerDTO");
-                });
 
             modelBuilder.Entity("HotelMotorShared.Models.Customer", b =>
                 {
@@ -178,9 +148,6 @@ namespace HotelMotorApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -196,9 +163,12 @@ namespace HotelMotorApi.Migrations
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
+                    b.Property<int>("customerId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("customerId");
 
                     b.ToTable("Vehicles");
                 });
@@ -235,13 +205,13 @@ namespace HotelMotorApi.Migrations
 
             modelBuilder.Entity("HotelMotorShared.Models.Vehicle", b =>
                 {
-                    b.HasOne("HotelMotorShared.Models.Customer", "Customer")
+                    b.HasOne("HotelMotorShared.Models.Customer", "customer")
                         .WithMany("Vehicles")
-                        .HasForeignKey("CustomerId")
+                        .HasForeignKey("customerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Customer");
+                    b.Navigation("customer");
                 });
 
             modelBuilder.Entity("HotelMotorShared.Models.Customer", b =>
