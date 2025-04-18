@@ -1,4 +1,5 @@
-﻿using HotelMotorShared.Models;
+﻿using HotelMotorShared.Dtos;
+using HotelMotorShared.Models;
 
 namespace HotelMotorApi.Interfaces
 {
@@ -6,5 +7,8 @@ namespace HotelMotorApi.Interfaces
     {
         Task<IEnumerable<Vehicle>> GetVehiclesAsync();
         Task<Vehicle> GetVehicleByIdAsync(int id);
+        Task<Vehicle> AddVehicleAsync(AddVehicleDTO addVehicleDto);
+        Task<Vehicle> UpdateVehicleAsync(int id, UpdateVehicleDTO updateVehicleDto);
+        Task<bool> DeleteVehicleAsync(int id);
     }
 }

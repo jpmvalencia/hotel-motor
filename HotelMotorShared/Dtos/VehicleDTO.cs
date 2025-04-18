@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HotelMotorShared.Models
+namespace HotelMotorShared.Dtos
 {
-    public class Vehicle
+    public class VehicleDTO
     {
         public int Id { get; set; }
         public string Brand { get; set; }
@@ -12,7 +12,6 @@ namespace HotelMotorShared.Models
         public string Type { get; set; }
         public int Year { get; set; }
         public string PlateNumber { get; set; }
-        public Customer Customer { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        public int CustomerId { get; set; }
     }
 }

@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace HotelMotorShared.Models
+namespace HotelMotorShared.Dtos
 {
-    public class Vehicle
+    public class AddVehicleDTO
     {
-        public int Id { get; set; }
+        [Required]
         public string Brand { get; set; }
+        [Required]
         public string Model { get; set; }
+        [Required]
         public string Type { get; set; }
+        [Required]
         public int Year { get; set; }
+        [Required]
         public string PlateNumber { get; set; }
-        public Customer Customer { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        [Required]
+        public int CustomerId { get; set; }
     }
 }

@@ -23,5 +23,42 @@ namespace HotelMotorApi.Repositories
         {
             return await _applicationDbContext.Vehicles.FirstOrDefaultAsync(vehicle => vehicle.Id == id);
         }
+
+        public async Task<Vehicle> AddVehicleAsync(Vehicle vehicle)
+        {
+            await _applicationDbContext.Vehicles.AddAsync(vehicle);
+            await _applicationDbContext.SaveChangesAsync();
+            return vehicle;
+        }
+
+        public async Task<Vehicle> GetVehicleByPlateNumberAsync(string plateNumber)
+        {
+            return await _applicationDbContext.Vehicles.FirstOrDefaultAsync(vehicle => vehicle.PlateNumber == plateNumber);
+        }
+
+        public async Task<Vehicle> UpdateVehicleAsync(int id, Vehicle vehicle)
+        {
+            var existingVehicle = await _applicationDbContext.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
+            existingVehicle.Brand = vehicle.Brand;
+            existingVehicle.Model = vehicle.Model;
+            existingVehicle.Type = vehicle.Type;
+            existingVehicle.Year = vehicle.Year;
+            existingVehicle.PlateNumber = vehicle.PlateNumber;
+            
+            await _applicationDbContext.SaveChangesAsync();
+            return existingVehicle;
+        }
+
+        public async Task<bool> DeleteVehicleAsync(int id)
+        {
+            var vehicle = await _applicationDbContext.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
+            if (vehicle == null)
+            {
+                return false;
+            }
+            _applicationDbContext.Vehicles.Remove(vehicle);
+            await _applicationDbContext.SaveChangesAsync();
+            return true;
+        }
     }
 }
