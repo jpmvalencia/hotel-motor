@@ -1,6 +1,6 @@
-﻿namespace HotelMotorShared.DTOs
+﻿namespace HotelMotorShared.Dtos.CustomerDTOs
 {
-    public class CustomerDTO
+    public class CustomerDto
     {
         public int Id { get; set; }
         public string Name { get; set; }

@@ -5,6 +5,9 @@ using HotelMotorApi.Mappings;
 using HotelMotorApi.Interfaces;
 using HotelMotorApi.Repositories;
 using HotelMotorApi.Services;
+using FluentValidation;
+using HotelMotorApi.Validators.Customer;
+using HotelMotorShared.Dtos.CustomerDTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +41,9 @@ builder.Services.AddScoped<IVehiclesRepository, VehiclesRepository>();
 //Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IVehiclesService, VehiclesService>();
+// Validators
+builder.Services.AddScoped<IValidator<CustomerCreateDto>, CustomerCreateValidator>();
+builder.Services.AddScoped<IValidator<CustomerUpdateDto>, CustomerUpdateValidator>();
 
 var app = builder.Build();
 
