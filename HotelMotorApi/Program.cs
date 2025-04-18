@@ -1,9 +1,10 @@
 using HotelMotorApi.Common;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
+using HotelMotorApi.Mappings;
 using HotelMotorApi.Interfaces;
-using HotelMotorApi.Services;
 using HotelMotorApi.Repositories;
+using HotelMotorApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,9 +30,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
         errorNumbersToAdd: null);
 }));
 
-builder.Services.AddScoped<IVehiclesService, VehiclesService>();
+// Automapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+// Repositories
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IVehiclesRepository, VehiclesRepository>();
-
+//Services
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IVehiclesService, VehiclesService>();
 
 var app = builder.Build();
 

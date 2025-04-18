@@ -1,5 +1,6 @@
 ﻿using HotelMotorShared.Models;
 using Microsoft.EntityFrameworkCore;
+using HotelMotorShared.DTOs;
 
 namespace HotelMotorApi.Common
 {
@@ -14,5 +15,6 @@ namespace HotelMotorApi.Common
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+        public DbSet<HotelMotorShared.DTOs.CustomerDTO> CustomerDTO { get; set; } = default!;
     }
 }
