@@ -3,6 +3,7 @@ using HotelMotorShared.Dtos.CustomerDTOs;
 using HotelMotorShared.Dtos;
 using HotelMotorShared.DTOs;
 using HotelMotorShared.Models;
+using HotelMotorShared.DTOs.ServiceDTOs;
 
 namespace HotelMotorApi.Mappings
 {
@@ -19,6 +20,8 @@ namespace HotelMotorApi.Mappings
 
             CreateMap<Vehicle, VehicleDTO>()
                 .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id));
+
+            CreateMap<Service, ServiceDto>();
         }
     }
 }

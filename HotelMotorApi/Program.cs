@@ -38,9 +38,11 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Repositories
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IVehiclesRepository, VehiclesRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 //Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IVehiclesService, VehiclesService>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
 // Validators
 builder.Services.AddScoped<IValidator<CustomerCreateDto>, CustomerCreateValidator>();
 builder.Services.AddScoped<IValidator<CustomerUpdateDto>, CustomerUpdateValidator>();
