@@ -1,6 +1,10 @@
 using HotelMotorApi.Common;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
+using HotelMotorApi.Mappings;
+using HotelMotorApi.Interfaces;
+using HotelMotorApi.Repositories;
+using HotelMotorApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +24,12 @@ string password = Environment.GetEnvironmentVariable("DB_PASSWORD");
 string connectionString = $"Server=localhost,1433;Database={dbName};User={user};Password={password};TrustServerCertificate=True;";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+// Automapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+// Repositories
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+//Services
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 var app = builder.Build();
 
