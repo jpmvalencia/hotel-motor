@@ -75,7 +75,7 @@ namespace HotelMotorApi.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -116,7 +116,7 @@ namespace HotelMotorApi.Controllers
                 return BadRequest(new
                 {
                     status = 400,
-                    message = "Error al actualizar el orden",
+                    message = "Error al actualizar la orden",
                     error = ex.Message
                 });
             }
