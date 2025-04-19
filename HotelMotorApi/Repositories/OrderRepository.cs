@@ -40,18 +40,9 @@ namespace HotelMotorApi.Repositories
         }
         public async Task<Order?> UpdateAsync(Order order)
         {
-            var existingOrder = await GetByIdAsync(order.Id);
-            if (existingOrder == null)
-                return null;
-
-            existingOrder.Summary = order.Summary;
-            existingOrder.Status = order.Status;
-            existingOrder.TotalAmount = order.TotalAmount;
-            existingOrder.Vehicle = order.Vehicle;
-
-            _context.Orders.Update(existingOrder);
+            _context.Orders.Update(order);
             await _context.SaveChangesAsync();
-            return existingOrder;
+            return order;
         }
 
         public async Task<bool> DeleteAsync(int id)

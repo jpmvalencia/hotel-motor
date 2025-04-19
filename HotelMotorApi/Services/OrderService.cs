@@ -33,15 +33,15 @@ namespace HotelMotorApi.Services
         }
         public async Task<OrderDTO> CreateOrderAsync(OrderCreateDTO orderDto)
         {
-            var vehicle = await _vehiclesService.GetVehicleByIdAsync(orderDto.VehicleId) ?? 
+            var vehicle = await _vehiclesService.GetVehicleByIdAsync(orderDto.VehicleId) ??
                 throw new Exception("Vehículo no encontrado");
 
             var order = new Order
             {
                 Summary = orderDto.Summary,
                 Vehicle = vehicle,
-                CreatedAt = DateTime.UtcNow,
-                DueDate = DateTime.UtcNow.AddDays(7),
+                CreatedAt = DateTime.Now,
+                DueDate = DateTime.Now.AddDays(orderDto.DueDateDays),
                 TotalAmount = 0.0m,
                 Status = OrderStatus.Pending
             };
@@ -51,21 +51,20 @@ namespace HotelMotorApi.Services
 
         public async Task<OrderDTO?> UpdateOrderAsync(int id, OrderUpdateDTO orderDto)
         {
-            if (!await _orderRepository.ExistsAsync(id))
-                return null;
-           
             var existingOrder = await _orderRepository.GetByIdAsync(id);
-            
-            existingOrder.Summary = orderDto.Summary;
-            existingOrder.Status = orderDto.Status;
+            if (existingOrder == null)
+                return null;
 
-            var newVehicle = await _vehiclesService.GetVehicleByIdAsync(orderDto.VehicleId) ??
-                throw new Exception("Vehículo no encontrado");
+            if (orderDto.Summary != null)
+                existingOrder.Summary = orderDto.Summary;
 
-            existingOrder.Vehicle = newVehicle;
+            if (orderDto.Status.HasValue)
+                existingOrder.Status = orderDto.Status.Value;
+
+            if (orderDto.DueDateDays.HasValue)
+                existingOrder.DueDate = DateTime.Now.AddDays(orderDto.DueDateDays.Value);
 
             await _orderRepository.UpdateAsync(existingOrder);
-
             return _mapper.Map<OrderDTO>(existingOrder);
         }
 
