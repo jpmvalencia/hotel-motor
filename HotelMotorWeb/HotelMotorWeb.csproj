@@ -11,6 +11,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.14" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
+
   <Import Project="..\HotelMotorShared\HotelMotorShared.projitems" Label="Shared" />
 
 </Project>
