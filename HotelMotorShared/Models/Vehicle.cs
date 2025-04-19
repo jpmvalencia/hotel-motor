@@ -14,5 +14,10 @@ namespace HotelMotorShared.Models
         public string PlateNumber { get; set; }
         public Customer Customer { get; set; }
         public ICollection<Order> Orders { get; set; }
+
+        public static implicit operator Vehicle(Task<Vehicle> v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

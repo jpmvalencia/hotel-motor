@@ -9,7 +9,7 @@ namespace HotelMotorApi.Common
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderService> OrderServices { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<Service> Services { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)

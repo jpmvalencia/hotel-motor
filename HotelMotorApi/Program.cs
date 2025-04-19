@@ -46,10 +46,12 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IVehiclesRepository, VehiclesRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 //Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IVehiclesService, VehiclesService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 // Validators
 builder.Services.AddScoped<IValidator<CustomerCreateDto>, CustomerCreateValidator>();
 builder.Services.AddScoped<IValidator<CustomerUpdateDto>, CustomerUpdateValidator>();
