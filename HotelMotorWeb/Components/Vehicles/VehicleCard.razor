@@ -1,0 +1,20 @@
+﻿@using HotelMotorShared.Dtos
+
+<div class="col">
+    <div class="card shadow-sm border-light rounded">
+        <img src="//external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.nissan-cdn.net%2Fcontent%2Fdam%2FNissan%2Fpr%2FShowroomVirtual%2Fcar_placeholder.png.ximg.l_4_m.smart.png&f=1&nofb=1&ipt=1be90965ace4c4715e0356ff4774b924a88f55613b9cd8af6e2edf432a8f6b84" class="card-img-top" alt="@Vehicle.Model" />
+        <div class="card-body">
+            <h5 class="card-title text-center">@Vehicle.Model</h5>
+            <h6 class="card-subtitle mb-2 text-muted text-center">@Vehicle.Brand</h6>
+            <p class="card-text"><strong>Tipo:</strong> @Vehicle.Type</p>
+            <p class="card-text"><strong>Placa:</strong> @Vehicle.PlateNumber</p>
+        </div>
+        <div class="card-footer text-center">
+            <NavLink class="btn btn-outline-primary btn-sm" href="/orders">Órdenes</NavLink>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public VehicleDTO Vehicle { get; set; }
+}

@@ -1,0 +1,42 @@
+﻿@page "/vehicles"
+@using HotelMotorShared.Dtos
+@using HotelMotorWeb.Components.Vehicles
+@using HotelMotorWeb.Services.Vehicles
+@inject VehiclesService VehiclesService
+
+<h3 class="mb-4">Lista de Vehículos</h3>
+
+@if (isLoading)
+{
+    <p class="text-muted">Cargando...</p>
+}
+else if (vehicles != null && vehicles.Any())
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var vehicle in vehicles)
+        {
+            <VehicleCard Vehicle="vehicle" />
+        }
+    </div>
+}
+else
+{
+    <p class="text-muted">No hay vehículos registrados.</p>
+}
+
+<NavLink href="/vehicles/create"
+         class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center"
+         style="width: 60px; height: 60px;">
+    <span class="fs-4">+</span>
+</NavLink>
+
+@code {
+    private List<VehicleDTO>? vehicles;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vehicles = await VehiclesService.GetVehiclesAsync();
+        isLoading = false;
+    }
+}
