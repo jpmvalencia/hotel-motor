@@ -14,33 +14,33 @@ namespace HotelMotorApi.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Order>> GetOrdersAsync()
+        public async Task<IEnumerable<Order>> GetAllAsync()
         {
             return await _context.Orders
                 .Include(o => o.Vehicle)
-                .Include(os => os.OrderServices)
+                .Include(os => os.OrderDetails)
                 .ThenInclude(os => os.Service)
                 .ToListAsync();
         }
 
-        public async Task<Order?> GetOrderByIdAsync(int id)
+        public async Task<Order?> GetByIdAsync(int id)
         {
             return await _context.Orders
                 .Include(o => o.Vehicle)
-                .Include(os => os.OrderServices)
+                .Include(os => os.OrderDetails)
                 .ThenInclude(os => os.Service)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        public async Task<Order> CreateOrderAsync(Order order)
+        public async Task<Order> CreateAsync(Order order)
         {
             await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();
             return order;
         }
-        public async Task<Order?> UpdateOrderAsync(int id, Order order)
+        public async Task<Order?> UpdateAsync(Order order)
         {
-            var existingOrder = await GetOrderByIdAsync(id);
+            var existingOrder = await GetByIdAsync(order.Id);
             if (existingOrder == null)
                 return null;
 
@@ -48,16 +48,15 @@ namespace HotelMotorApi.Repositories
             existingOrder.Status = order.Status;
             existingOrder.TotalAmount = order.TotalAmount;
             existingOrder.Vehicle = order.Vehicle;
-            existingOrder.OrderServices = order.OrderServices;
 
             _context.Orders.Update(existingOrder);
             await _context.SaveChangesAsync();
             return existingOrder;
         }
 
-        public async Task<bool> DeleteOrderAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var order = await GetOrderByIdAsync(id);
+            var order = await GetByIdAsync(id);
             if (order == null)
             {
                 return false;
@@ -66,5 +65,12 @@ namespace HotelMotorApi.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _context.Orders.AnyAsync(c => c.Id == id);
+
+        }
+
     }
 }

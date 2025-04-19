@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace HotelMotorShared.Models
 
-namespace HotelMotorShared.Models
 {
     public class Order
     {
         public int Id { get; set; }
-        public string Summary { get; set; }
-        public string Status { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime DueDate { get; set; }
-        public decimal TotalAmount { get; set; }
-        public Vehicle Vehicle { get; set; }
-        public ICollection<OrderService> OrderServices { get; set; }
+        public required string Summary { get; set; }
+        public required OrderStatus Status { get; set; }
+        public required DateTime CreatedAt { get; set; }
+        public required DateTime DueDate { get; set; }
+        public required decimal TotalAmount { get; set; }
+        public Vehicle Vehicle { get; set; } = null!;
+        public ICollection<OrderDetails> OrderDetails { get; set; } = [];
     }
 }

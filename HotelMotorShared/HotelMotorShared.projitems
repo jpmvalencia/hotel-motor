@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\AddVehicleDTO.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\OrderDTOs\OrderCreateDTO.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\OrderDTOs\OrderDTO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\OrderDTOs\OrderUpdateDTO.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DTOs\ServiceDTOs\AddServiceDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DTOs\ServiceDTOs\ServiceDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DTOs\ServiceDTOs\UpdateServiceDto.cs" />
@@ -22,7 +23,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\VehicleDTO.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Customer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Order.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\OrderService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\OrderDetails.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\OrderStatus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Service.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Vehicle.cs" />
   </ItemGroup>

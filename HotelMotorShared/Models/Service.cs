@@ -10,6 +10,6 @@ namespace HotelMotorShared.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
-        public ICollection<OrderService> OrderServices { get; set; }
+        public ICollection<OrderDetails> OrderServices { get; set; }
     }
 }

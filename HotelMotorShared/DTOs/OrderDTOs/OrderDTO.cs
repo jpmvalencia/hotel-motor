@@ -11,6 +11,6 @@ namespace HotelMotorShared.Dtos.OrderDTOs
         public DateTime DueDate { get; set; }
         public decimal TotalAmount { get; set; }
         public VehicleDTO Vehicle { get; set; }
-        public ICollection<OrderService> OrderServices { get; set; } = new List<OrderService>();
+        public ICollection<OrderDetails> OrderServices { get; set; } = new List<OrderDetails>();
     }
 }
