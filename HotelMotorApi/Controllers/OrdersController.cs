@@ -169,5 +169,30 @@ namespace HotelMotorApi.Controllers
                 return StatusCode(500, "Error interno del servidor" + ex.Message);
             }
         }
+
+        [HttpDelete("{orderId}/delete-service")]
+        public async Task<ActionResult> DeleteServiceFromOrder(int orderId, [FromBody] int serviceId)
+        {
+            try
+            {
+                var deleted = await _orderService.DeleteServiceFromOrder(orderId, serviceId);
+                if (!deleted)
+                {
+                    return NotFound(new
+                    {
+                        status = 404,
+                        message = "La orden no tiene el servicio " + serviceId
+                    });
+                }
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Se eliminó el servicio " + serviceId + " de la orden"
+                });
+            } catch (Exception ex)
+            {
+                return BadRequest(new { status = 400, message = ex.Message });
+            }
+        }
     }
 }

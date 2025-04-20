@@ -107,5 +107,10 @@ namespace HotelMotorApi.Services
             var updatedOrder = await _orderRepository.GetByIdAsync(orderId);
             return _mapper.Map<OrderDTO>(updatedOrder);
         }
+
+        public async Task<bool> DeleteServiceFromOrder(int orderId, int serviceId)
+        {
+            return await _orderDetailsRepository.RemoveServiceFromOrderAsync(orderId, serviceId);
+        }
     }
 }

@@ -48,7 +48,6 @@ namespace HotelMotorApi.Repositories
                 .ToListAsync();
         }
 
-
         public async Task<bool> RemoveServiceFromOrderAsync(int orderId, int serviceId)
         {
             var orderDetail = await _context.OrderDetails
@@ -61,7 +60,6 @@ namespace HotelMotorApi.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-
 
         public async Task<bool> IsServiceAssignedToOrderAsync(int orderId, int serviceId)
         {
