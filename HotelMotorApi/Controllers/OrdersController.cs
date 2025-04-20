@@ -147,5 +147,27 @@ namespace HotelMotorApi.Controllers
                 return BadRequest(new { status = 400, message = ex.Message });
             }
         }
+
+        [HttpPost("{orderId}/assign-services")]
+        public async Task<ActionResult<OrderDTO>> AddServicesToOrder(int orderId, [FromBody] List<int> servicesIds)
+        {
+            try
+            {
+                var result = await _orderService.AddServicesToOrder(orderId, servicesIds);
+                return Ok(result);
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "Error al asignar los servicios en la orden " + ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error interno del servidor" + ex.Message);
+            }
+        }
     }
 }
