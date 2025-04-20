@@ -7,14 +7,34 @@
             <h5 class="card-title text-center">@Vehicle.Model</h5>
             <h6 class="card-subtitle mb-2 text-muted text-center">@Vehicle.Brand</h6>
             <p class="card-text"><strong>Tipo:</strong> @Vehicle.Type</p>
+            <p class="card-text"><strong>Año:</strong> @Vehicle.Year</p>
             <p class="card-text"><strong>Placa:</strong> @Vehicle.PlateNumber</p>
         </div>
         <div class="card-footer text-center">
+            <button class="btn btn-outline-secondary btn-sm rounded-cricle" @onclick="ShowEditModal">
+                <i class="bi bi-pencil-fill"></i>
+            </button>
             <NavLink class="btn btn-outline-primary btn-sm" href="/orders">Órdenes</NavLink>
         </div>
     </div>
 </div>
 
+<EditVehicleModal IsVisible="@isEditModalVisible" Vehicle="Vehicle" OnClose="CloseEditModal" OnUpdate="OnUpdate" OnDelete="OnDelete" />
+
 @code {
     [Parameter] public VehicleDTO Vehicle { get; set; }
+    [Parameter] public EventCallback<VehicleDTO> OnUpdate { get; set; }
+	[Parameter] public EventCallback<VehicleDTO> OnDelete { get; set; }
+
+    private bool isEditModalVisible = false;
+
+    private void ShowEditModal()
+    {
+        isEditModalVisible = true;
+    }
+
+    private void CloseEditModal()
+    {
+        isEditModalVisible = false;
+    }
 }

@@ -24,5 +24,17 @@ namespace HotelMotorWeb.Services.Vehicles
             var response = await _httpClient.PostAsJsonAsync("vehicles", addVehicleDto);
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<bool> UpdateVehicleAsync(int id, UpdateVehicleDTO updateVehicleDto)
+        {
+            var response = await _httpClient.PatchAsJsonAsync($"vehicles/{id}", updateVehicleDto);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> DeleteVehicleAsync(int id)
+        {
+            var response = await _httpClient.DeleteAsync($"vehicles/{id}");
+            return response.IsSuccessStatusCode;
+        }
     }
 }
