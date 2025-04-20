@@ -26,10 +26,17 @@ namespace HotelMotorApi.Mappings
 
             CreateMap<Order, OrderDTO>()
                 .ForMember(dest => dest.Vehicle, opt => opt.MapFrom(src => src.Vehicle))
-                .ForMember(dest => dest.OrderServices, opt => opt.MapFrom(src => src.OrderDetails));
+                .ForMember(dest => dest.Services, opt => opt.MapFrom(src => src.OrderDetails));
 
             CreateMap<OrderCreateDTO, Order>();
             CreateMap<OrderUpdateDTO, Order>();
+
+            CreateMap<OrderDetails, ServiceDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Service.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Service.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Service.Description))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Service.Price));
+
         }
     }
 }

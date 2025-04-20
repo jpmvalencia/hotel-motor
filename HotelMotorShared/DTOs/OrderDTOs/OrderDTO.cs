@@ -1,4 +1,5 @@
-﻿using HotelMotorShared.Models;
+﻿using HotelMotorShared.DTOs.ServiceDTOs;
+using HotelMotorShared.Models;
 
 namespace HotelMotorShared.Dtos.OrderDTOs
 {
@@ -11,6 +12,6 @@ namespace HotelMotorShared.Dtos.OrderDTOs
         public DateTime DueDate { get; set; }
         public decimal TotalAmount { get; set; }
         public VehicleDTO Vehicle { get; set; }
-        public ICollection<OrderDetails> OrderServices { get; set; } = new List<OrderDetails>();
+        public ICollection<ServiceDto> Services { get; set; } = [];
     }
 }

@@ -9,5 +9,7 @@ namespace HotelMotorApi.Interfaces
         Task<OrderDTO> CreateOrderAsync(OrderCreateDTO orderDto);
         Task<OrderDTO?> UpdateOrderAsync(int id, OrderUpdateDTO orderDto);
         Task<bool> DeleteOrderAsync(int id);
+        Task<OrderDTO> AddServicesToOrder(int orderId, List<int> servicesIds);
+        Task<bool> DeleteServiceFromOrder(int orderId, int serviceId);
     }
 }

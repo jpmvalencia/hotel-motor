@@ -8,12 +8,17 @@ namespace HotelMotorApi.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IOrderDetailsRepository _orderDetailsRepository;
+        private readonly IServiceService _serviceService;
         private readonly IVehiclesService _vehiclesService;
         private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository, IVehiclesService vehiclesService, IMapper mapper)
+        public OrderService(IOrderRepository orderRepository, IOrderDetailsRepository orderDetailsRepository,
+            IServiceService serviceService, IVehiclesService vehiclesService, IMapper mapper)
         {
             _orderRepository = orderRepository;
+            _orderDetailsRepository = orderDetailsRepository;
+            _serviceService = serviceService;
             _vehiclesService = vehiclesService;
             _mapper = mapper;
         }
@@ -68,10 +73,44 @@ namespace HotelMotorApi.Services
             return _mapper.Map<OrderDTO>(existingOrder);
         }
 
-
         public async Task<bool> DeleteOrderAsync(int id)
         {
             return await _orderRepository.DeleteAsync(id);
+        }
+
+        public async Task<OrderDTO> AddServicesToOrder(int orderId, List<int> servicesIds)
+        {
+            if (!await _orderRepository.ExistsAsync(orderId))
+                throw new ApplicationException($"Orden con id {orderId} no encontrada");
+
+            if (servicesIds == null || servicesIds.Count == 0)
+                throw new ApplicationException("No se han proporcionado correctamente los ids de los servicios");
+
+            var existingServices = await _serviceService.GetServicesAsync();
+            var existingServiceIds = existingServices.Select(s => s.Id).ToList();
+
+            var nonExistingServiceIds = servicesIds.Except(existingServiceIds).ToList();
+
+            if (nonExistingServiceIds.Any())
+            {
+                throw new ApplicationException($"Los siguientes servicios no existen: {string.Join(", ", nonExistingServiceIds)}");
+            }
+
+            var assignedServices = await _orderDetailsRepository.GetServicesByOrderIdAsync(orderId);
+            var alreadyAssigned = servicesIds.Intersect(assignedServices.Select(s => s.ServiceId)).ToList();
+
+            if (alreadyAssigned.Any())
+                throw new ApplicationException($"Los siguientes servicios ya están asignados a la orden: {string.Join(", ", alreadyAssigned)}");
+
+            await _orderDetailsRepository.AssignServicesToOrderAsync(orderId, servicesIds);
+
+            var updatedOrder = await _orderRepository.GetByIdAsync(orderId);
+            return _mapper.Map<OrderDTO>(updatedOrder);
+        }
+
+        public async Task<bool> DeleteServiceFromOrder(int orderId, int serviceId)
+        {
+            return await _orderDetailsRepository.RemoveServiceFromOrderAsync(orderId, serviceId);
         }
     }
 }
