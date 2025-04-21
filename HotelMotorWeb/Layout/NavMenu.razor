@@ -1,7 +1,13 @@
-﻿<nav class="navbar navbar-expand-lg bg-dark navbar-dark fixed-top">
+﻿@using HotelMotorWeb.Services.Auth
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthProvider
+@inject CustomAuthProvider CustomAuthProvider
+@inject NavigationManager Navigation
+
+<nav class="navbar navbar-expand-lg bg-dark navbar-dark fixed-top">
     <div class="container">
         <div class="d-flex align-items-center justify-content-between w-100 position-relative">
-            <!-- Espacio compensador (mismo ancho que dropdowns) -->
+            <!-- Espacio compensador (mismo ancho que dropdowns o botones) -->
             <div style="width: 200px;"></div>
 
             <!-- Título centrado -->
@@ -9,27 +15,49 @@
                 <a class="navbar-text h2 text-white text-decoration-none m-0" href="/">HotelMotor</a>
             </div>
 
-            <!-- Menús desplegables -->
-            <div class="d-flex gap-3" style="width: 200px;">
-                <div class="dropdown">
-                    <a class="nav-link dropdown-toggle text-bg-dark" href="#" id="vehiculosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Vehículos
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="vehiculosDropdown">
-                        <li><a class="dropdown-item" href="/vehicles">Ver vehículos</a></li>
-                        <li><a class="dropdown-item" href="/vehicles/create">Añadir nuevo vehículo</a></li>
-                    </ul>
-                </div>
-                <div class="dropdown">
-                    <a class="nav-link dropdown-toggle text-bg-dark" href="#" id="serviciosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Servicios
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="serviciosDropdown">
-                        <li><a class="dropdown-item" href="/services">Ver servicios</a></li>
-                        <li><a class="dropdown-item" href="/services/create">Añadir nuevo servicio</a></li>
-                    </ul>
-                </div>
-            </div>
+            <!-- Menús desplegables y logout -->
+            <AuthorizeView>
+                <Authorized>
+                    <div class="d-flex gap-3 align-items-center" style="width: 200px;">
+                        <!-- Dropdown Vehículos -->
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle text-bg-dark" href="#" id="vehiculosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Vehículos
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="vehiculosDropdown">
+                                <li><a class="dropdown-item" href="/vehicles">Ver vehículos</a></li>
+                                <li><a class="dropdown-item" href="/vehicles/create">Añadir nuevo vehículo</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Dropdown Servicios -->
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle text-bg-dark" href="#" id="serviciosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Servicios
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="serviciosDropdown">
+                                <li><a class="dropdown-item" href="/services">Ver servicios</a></li>
+                                <li><a class="dropdown-item" href="/services/create">Añadir nuevo servicio</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Cerrar sesión -->
+                        <button class="btn btn-outline-light btn-sm" @onclick="Logout">Cerrar sesión</button>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <!-- Espacio vacío para mantener alineación -->
+                    <div style="width: 200px;"></div>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
     </div>
 </nav>
+
+@code {
+    private async Task Logout()
+    {
+        await CustomAuthProvider.MarkUserAsLoggedOut();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}
