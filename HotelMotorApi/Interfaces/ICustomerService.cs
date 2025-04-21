@@ -9,5 +9,6 @@ namespace HotelMotorApi.Interfaces
         Task<CustomerDto> CreateAsync(CustomerCreateDto customerDto);
         Task<CustomerDto?> UpdateAsync(int id, CustomerUpdateDto customerDto);
         Task<bool> DeleteAsync(int id);
+        Task<CustomerDto?> SearchOneAsync(string searchTerm);
     }
 }
