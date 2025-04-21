@@ -1,0 +1,34 @@
+﻿@using HotelMotorShared.DTOs.ServiceDTOs
+@using HotelMotorWeb.Components.Services
+
+<div class="col">
+    <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="card-title fw-bold">@Service.Name</h5>
+            <p class="card-text text-muted">@Service.Description</p>
+        </div>
+        <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
+            <span class="text-primary fw-semibold">Precio: $@Service.Price.ToString("F2")</span>
+            <button class="btn btn-outline-secondary btn-sm rounded-circle" @onclick="ShowEditModal">
+                <i class="bi bi-pencil-fill"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<EditServiceModal IsVisible="@isEditModalVisible"
+                  Service="Service"
+                  OnClose="CloseEditModal"
+                  OnUpdate="OnUpdate"
+                  OnDelete="OnDelete" />
+
+@code {
+    [Parameter] public ServiceDto Service { get; set; }
+    [Parameter] public EventCallback<ServiceDto> OnUpdate { get; set; }
+    [Parameter] public EventCallback<ServiceDto> OnDelete { get; set; }
+
+    private bool isEditModalVisible = false;
+
+    private void ShowEditModal() => isEditModalVisible = true;
+    private void CloseEditModal() => isEditModalVisible = false;
+}
