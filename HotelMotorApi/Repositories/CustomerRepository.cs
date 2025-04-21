@@ -78,5 +78,12 @@ namespace HotelMotorApi.Repositories
         {
             return await _context.Customers.AnyAsync(c => c.Email.ToLower() == email.ToLower());
         }
+
+        public async Task<Customer?> SearchOneAsync(string searchTerm)
+        {
+            return await _context.Customers
+                .Where(c => c.Name.Contains(searchTerm) || c.Email.Contains(searchTerm))
+                .FirstOrDefaultAsync();  // Devuelve solo el primer cliente que coincida
+        }
     }
 }
