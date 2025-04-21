@@ -8,6 +8,11 @@ using HotelMotorApi.Services;
 using FluentValidation;
 using HotelMotorApi.Validators.Customer;
 using HotelMotorShared.Dtos.CustomerDTOs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,11 +26,33 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("https://localhost:7078").AllowAnyHeader().AllowAnyMethod();
     });
 });
+
+string jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+string jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+string jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+Console.WriteLine($"JWT_KEY: {jwtKey}");
+Console.WriteLine($"JWT_ISSUER: {jwtIssuer}");
+Console.WriteLine($"JWT_AUDIENCE: {jwtAudience}");
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+builder.Services.AddAuthorization();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-DotNetEnv.Env.Load();
 
 string dbName = Environment.GetEnvironmentVariable("DB_NAME");
 string user = Environment.GetEnvironmentVariable("DB_USER");
@@ -48,11 +75,13 @@ builder.Services.AddScoped<IVehiclesRepository, VehiclesRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 //Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IVehiclesService, VehiclesService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 // Validators
 builder.Services.AddScoped<IValidator<CustomerCreateDto>, CustomerCreateValidator>();
 builder.Services.AddScoped<IValidator<CustomerUpdateDto>, CustomerUpdateValidator>();
@@ -69,6 +98,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowBlazorClient");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

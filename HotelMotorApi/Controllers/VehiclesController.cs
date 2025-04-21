@@ -73,6 +73,31 @@ namespace HotelMotorApi.Controllers
             }
         }
 
+        [HttpGet("by-customer/{customerId}")]
+        public async Task<IActionResult> GetVehiclesByCustomerId(int customerId)
+        {
+            try
+            {
+                var vehicles = await _vehiclesService.GetVehiclesByCustomerIdAsync(customerId);
+                var vehicleDtos = vehicles.Select(v => _mapper.Map<VehicleDTO>(v));
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Vehículos encontrados",
+                    data = vehicleDtos
+                });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new
+                {
+                    status = 404,
+                    message = ex.Message
+                });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddVehicle([FromBody] AddVehicleDTO addVehicleDto)
         {
