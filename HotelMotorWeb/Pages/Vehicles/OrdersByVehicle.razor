@@ -1,0 +1,39 @@
+﻿@page "/vehicles/{Id:int}/orders"
+@using HotelMotorShared.Dtos.OrderDTOs
+@using HotelMotorWeb.Services.Vehicles
+@using HotelMotorWeb.Components.Orders
+@inject VehiclesService VehiclesService
+
+<h3 class="mb-4">Lista de órdenes del vehículo</h3>
+@if (isLoading)
+{
+    <p class="text-muted">Cargando...</p>
+}
+else if (orders != null && orders.Any())
+{
+	<OrderTable Orders="orders" />
+}
+else
+{
+    <p class="text-muted">Este vehículo no tiene órdenes.</p>
+}
+
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+
+	private IEnumerable<OrderDTO>? orders;
+	private bool isLoading = true;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadOrdersAsync();
+	}
+
+	private async Task LoadOrdersAsync()
+	{
+		orders = await VehiclesService.GetOrdersByVehicleIdAsync(Id);
+		isLoading = false;
+	}
+}

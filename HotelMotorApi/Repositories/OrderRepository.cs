@@ -32,6 +32,16 @@ namespace HotelMotorApi.Repositories
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
+        public async Task<IEnumerable<Order>> GetByVehicleId(int vehicleId)
+        {
+            return await _context.Orders
+                .Include(o => o.Vehicle)
+                .Include(os => os.OrderDetails)
+                .ThenInclude(os => os.Service)
+                .Where(o => o.Vehicle.Id == vehicleId)
+                .ToListAsync();
+        }
+
         public async Task<Order> CreateAsync(Order order)
         {
             await _context.Orders.AddAsync(order);

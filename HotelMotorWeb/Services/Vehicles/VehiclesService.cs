@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using HotelMotorShared.Dtos;
+using HotelMotorShared.Dtos.OrderDTOs;
 using HotelMotorShared.Dtos.CustomerDTOs;
 using HotelMotorWeb.Shared;
 
@@ -60,6 +61,12 @@ namespace HotelMotorWeb.Services.Vehicles
         {
             var response = await _httpClient.DeleteAsync($"vehicles/{id}");
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<IEnumerable<OrderDTO>> GetOrdersByVehicleIdAsync(int vehicleId)
+        {
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<OrderDTO>>>($"vehicles/{vehicleId}/orders");
+            return response?.Data ?? new List<OrderDTO>();
         }
     }
 }

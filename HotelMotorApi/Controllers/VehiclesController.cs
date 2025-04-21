@@ -2,6 +2,7 @@
 using HotelMotorApi.Interfaces;
 using HotelMotorApi.Services;
 using HotelMotorShared.Dtos;
+using HotelMotorShared.Dtos.OrderDTOs;
 using HotelMotorShared.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -46,6 +47,30 @@ namespace HotelMotorApi.Controllers
                 message = "Vehículo encontrado",
                 data = vehicle
             });
+        }
+
+        [HttpGet("{id}/orders")]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersByVehicleId(int id)
+        {
+            try
+            {   
+                var orders = await _vehiclesService.GetOrdersByVehicleIdAsync(id);
+                var ordersDTO = _mapper.Map<IEnumerable<OrderDTO>>(orders);
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Órdenes encontradas",
+                    data = ordersDTO
+                });
+            }
+            catch (ApplicationException ex)
+            {
+                return NotFound(new { status = 404, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { status = 400, message = "Error al obtener las órdenes", error = ex.Message });
+            }
         }
 
         [HttpGet("by-customer/{customerId}")]
