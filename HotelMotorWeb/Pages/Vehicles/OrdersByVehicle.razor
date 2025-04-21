@@ -11,13 +11,18 @@
 }
 else if (orders != null && orders.Any())
 {
-	<OrderTable Orders="orders" />
+	<OrderTable Orders="orders" OnUpdate="UpdateOrder" OnDelete="DeleteOrder" />
 }
 else
 {
     <p class="text-muted">Este vehículo no tiene órdenes.</p>
 }
 
+<NavLink href="@($"/vehicles/{Id}/orders/create")"
+		 class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center"
+		 style="width: 60px; height: 60px;">
+	<span class="fs-4">+</span>
+</NavLink>
 
 @code {
 	[Parameter]
@@ -35,5 +40,15 @@ else
 	{
 		orders = await VehiclesService.GetOrdersByVehicleIdAsync(Id);
 		isLoading = false;
+	}
+
+	private async Task UpdateOrder(OrderDTO updatedOrderDto)
+	{
+		await LoadOrdersAsync();
+	}
+
+	private async Task DeleteOrder(OrderDTO orderDto)
+	{
+		await LoadOrdersAsync();
 	}
 }

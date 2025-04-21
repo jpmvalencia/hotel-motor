@@ -1,0 +1,71 @@
+﻿@page "/vehicles/{Id:int}/orders/create"
+@using HotelMotorShared.Dtos.OrderDTOs
+@using HotelMotorWeb.Services.Orders
+@inject OrderService OrderService
+@inject NavigationManager NavigationManager
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-light rounded">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Crear nueva order para el vehículo</h5>
+            </div>
+
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @errorMessage
+                    </div>
+                }
+
+                <EditForm Model="newOrder" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-floating mb-3">
+                        <InputTextArea id="summary" class="form-control" rows="3" cols="40" @bind-Value="newOrder.Summary" placeholder="Resumen de la orden" />
+                        <label for="summary">Resumen</label>
+                        <ValidationMessage For="@(() => newOrder.Summary)" />
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <InputDate id="due-date" class="form-control" @bind-Value="newOrder.DueDate" />
+                        <label for="due-date">Fecha de vencimiento</label>
+                        <ValidationMessage For="@(() => newOrder.DueDate)" />
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private OrderCreateDTO newOrder = new();
+    private string? errorMessage;
+    protected override void OnInitialized()
+    {
+        newOrder.DueDate = DateTime.Today;
+    }
+    private async Task HandleValidSubmit()
+    {
+        errorMessage = null;
+        newOrder.VehicleId = Id;
+
+        var created = await OrderService.CreateOrderAsync(newOrder);
+        if (created)
+        {
+            NavigationManager.NavigateTo($"/vehicles/{Id}/orders");
+        }
+        else
+        {
+            errorMessage = "Error al crear la orden. Por favor, intenta de nuevo.";
+        }
+    }
+}
