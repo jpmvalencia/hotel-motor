@@ -24,6 +24,18 @@ namespace HotelMotorApi.Services
             return await _vehiclesRepository.GetVehicleByIdAsync(id);
         }
 
+        public async Task<IEnumerable<Vehicle>> GetVehiclesByCustomerIdAsync(int customerId)
+        {
+            var customer = await _customerRepository.GetByIdAsync(customerId);
+
+            if (customer == null)
+            {
+                throw new Exception("Cliente no encontrado");
+            }
+
+            return customer.Vehicles ?? new List<Vehicle>();
+        }
+
         public async Task<Vehicle> AddVehicleAsync(AddVehicleDTO addVehicleDto)
         {
             var customer = await _customerRepository.GetByIdAsync(addVehicleDto.CustomerId);
