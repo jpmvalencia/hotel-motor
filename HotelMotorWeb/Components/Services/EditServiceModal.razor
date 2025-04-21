@@ -1,0 +1,83 @@
+﻿@using HotelMotorShared.DTOs.ServiceDTOs
+@using HotelMotorWeb.Services.Services
+@inject ServiceService ServiceService
+
+@if (IsVisible)
+{
+    <div>
+        <div class="modal-backdrop fade show" style="background-color: rgba(0, 0, 0, 0.5);"></div>
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar Servicio</h5>
+                        <button type="button" class="btn-close" @onclick="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="Service" OnValidSubmit="HandleEditSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="form-floating mb-3">
+                                <InputText class="form-control" id="name" @bind-Value="Service.Name" placeholder="Nombre" />
+                                <label for="name">Nombre</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <InputTextArea class="form-control" id="description" @bind-Value="Service.Description" placeholder="Descripción" />
+                                <label for="description">Descripción</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <InputNumber class="form-control" id="price" @bind-Value="Service.Price" placeholder="Precio" />
+                                <label for="price">Precio</label>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Actualizar</button>
+                                <button type="button" class="btn btn-danger" @onclick="DeleteService">Eliminar</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public ServiceDto Service { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<ServiceDto> OnUpdate { get; set; }
+    [Parameter] public EventCallback<ServiceDto> OnDelete { get; set; }
+
+    private async Task HandleEditSubmit()
+    {
+        var updateDto = new UpdateServiceDto
+            {
+                Name = Service.Name,
+                Description = Service.Description,
+                Price = Service.Price
+            };
+
+        var result = await ServiceService.UpdateServiceAsync(Service.Id, updateDto);
+        if (result)
+        {
+            await OnUpdate.InvokeAsync(Service);
+            await OnClose.InvokeAsync();
+        }
+    }
+
+    private async Task DeleteService()
+    {
+        var result = await ServiceService.DeleteServiceAsync(Service.Id);
+        if (result)
+        {
+            await OnDelete.InvokeAsync(Service);
+            await OnClose.InvokeAsync();
+        }
+    }
+
+    private void Close() => OnClose.InvokeAsync();
+}
