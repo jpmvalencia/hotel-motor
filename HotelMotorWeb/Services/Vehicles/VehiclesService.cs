@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using HotelMotorShared.Dtos;
 using HotelMotorShared.Dtos.OrderDTOs;
+using HotelMotorShared.Dtos.CustomerDTOs;
 using HotelMotorWeb.Shared;
 
 namespace HotelMotorWeb.Services.Vehicles
@@ -18,6 +19,30 @@ namespace HotelMotorWeb.Services.Vehicles
         {
             var response = await _httpClient.GetFromJsonAsync<ApiResponse<List<VehicleDTO>>>("vehicles");
             return response?.Data ?? new List<VehicleDTO>();
+        }
+
+        public async Task<List<VehicleDTO>> GetVehiclesByCustomerSearchTermAsync(string searchTerm)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"customers/search?term={searchTerm}");
+
+                if (!response.IsSuccessStatusCode)
+                    return new List<VehicleDTO>();
+
+                var customerResponse = await response.Content.ReadFromJsonAsync<ApiResponse<CustomerDto>>();
+                if (customerResponse?.Data == null)
+                    return new List<VehicleDTO>();
+
+                int customerId = customerResponse.Data.Id;
+
+                var vehicleResponse = await _httpClient.GetFromJsonAsync<ApiResponse<List<VehicleDTO>>>($"vehicles/by-customer/{customerId}");
+                return vehicleResponse?.Data ?? new List<VehicleDTO>();
+            }
+            catch
+            {
+                return new List<VehicleDTO>();
+            }
         }
 
         public async Task<bool> CreateVehicleAsync(AddVehicleDTO addVehicleDto)

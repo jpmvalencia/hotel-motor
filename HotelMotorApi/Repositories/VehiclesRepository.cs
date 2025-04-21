@@ -24,6 +24,14 @@ namespace HotelMotorApi.Repositories
             return await _applicationDbContext.Vehicles.FirstOrDefaultAsync(vehicle => vehicle.Id == id);
         }
 
+        public async Task<IEnumerable<Vehicle>> GetVehiclesByCustomerIdAsync(int customerId)
+        {
+            return await _applicationDbContext.Vehicles
+                .Where(v => v.Customer.Id == customerId)
+                .OrderByDescending(v => v.Model)
+                .ToListAsync();
+        }
+
         public async Task<Vehicle> AddVehicleAsync(Vehicle vehicle)
         {
             await _applicationDbContext.Vehicles.AddAsync(vehicle);

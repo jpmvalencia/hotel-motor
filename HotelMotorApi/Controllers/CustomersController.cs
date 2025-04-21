@@ -182,5 +182,29 @@ namespace HotelMotorApi.Controllers
                 message = "Cliente eliminado exitosamente"
             });
         }
+
+        // GET: api/Customers/search?term=nombre_o_email
+        [HttpGet("search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CustomerDto>> SearchCustomer([FromQuery] string term)
+        {
+            var customer = await _customerService.SearchOneAsync(term);
+            if (customer == null)
+            {
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "Cliente no encontrado"
+                });
+            }
+
+            return Ok(new
+            {
+                status = 200,
+                message = "Cliente encontrado",
+                data = customer
+            });
+        }
     }
 }

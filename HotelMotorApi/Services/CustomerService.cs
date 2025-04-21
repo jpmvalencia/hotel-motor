@@ -59,5 +59,17 @@ namespace HotelMotorApi.Services
         {
             return await _customerRepository.DeleteAsync(id);
         }
+
+        public async Task<CustomerDto?> SearchOneAsync(string searchTerm)
+        {
+            var customer = await _customerRepository.SearchOneAsync(searchTerm);
+            if (customer == null)
+            {
+                return null;  // Si no se encuentra el cliente, retorna null
+            }
+
+            return _mapper.Map<CustomerDto>(customer);
+        }
+
     }
 }
