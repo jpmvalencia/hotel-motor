@@ -51,15 +51,6 @@ namespace HotelMotorApi.Services
             var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
             var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
 
-            // DEBUG OUTPUT
-            Console.WriteLine("==== GENERATING JWT TOKEN ====");
-            Console.WriteLine($"JWT_KEY: {jwtKey}");
-            Console.WriteLine($"JWT_ISSUER: {jwtIssuer}");
-            Console.WriteLine($"JWT_AUDIENCE: {jwtAudience}");
-            Console.WriteLine($"User ID: {user.Id}");
-            Console.WriteLine($"User Email: {user.Email}");
-            Console.WriteLine($"User Name: {user.Name}");
-
             if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
             {
                 throw new InvalidOperationException("JWT configuration values are missing.");
@@ -84,15 +75,13 @@ namespace HotelMotorApi.Services
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
-            Console.WriteLine($"Generated Token: {tokenString}");
-
             return new AuthResponseDto
             {
+                Id = user.Id,
                 Token = tokenString,
                 Email = user.Email,
                 Name = user.Name
             };
         }
-
     }
 }
