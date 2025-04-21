@@ -6,6 +6,7 @@ namespace HotelMotorApi.Interfaces
     {
         Task<IEnumerable<Order>> GetAllAsync();
         Task<Order?> GetByIdAsync(int id);
+        Task<IEnumerable<Order>> GetByVehicleId(int vehicleId);
         Task<Order> CreateAsync(Order order);
         Task<Order?> UpdateAsync(Order order);
         Task<bool> ExistsAsync(int id);

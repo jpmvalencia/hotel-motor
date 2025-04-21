@@ -14,7 +14,7 @@
             <button class="btn btn-outline-secondary btn-sm rounded-cricle" @onclick="ShowEditModal">
                 <i class="bi bi-pencil-fill"></i>
             </button>
-            <NavLink class="btn btn-outline-primary btn-sm" href="/orders">Órdenes</NavLink>
+            <NavLink class="btn btn-outline-primary btn-sm" href="@($"/vehicles/{VehicleId}/orders")">Órdenes</NavLink>
         </div>
     </div>
 </div>
@@ -27,6 +27,7 @@
 	[Parameter] public EventCallback<VehicleDTO> OnDelete { get; set; }
 
     private bool isEditModalVisible = false;
+	private int VehicleId => Vehicle.Id;
 
     private void ShowEditModal()
     {

@@ -1,0 +1,47 @@
+﻿@using HotelMotorShared.Dtos.OrderDTOs
+
+<table class="table table-hover table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Fecha de creación</th>
+            <th>Fecha de vencimiento</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Orders)
+        {
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.CreatedAt.ToShortDateString()</td>
+                <td>@order.DueDate.ToShortDateString()</td>
+                <td>@order.Summary</td>
+                <td>
+                    <span class="badge bg-@GetStatusColor(order.Status)">
+                        @order.Status
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-primary btn-sm">Editar</button>
+                    <button class="btn btn-danger btn-sm">Eliminar</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public IEnumerable<OrderDTO> Orders { get; set; }
+
+    private string GetStatusColor(string status) => status switch
+    {
+        "Pending" => "warning",
+        "Completed" => "success",
+        "Inprogress" => "primary",
+        _ => "secondary"
+    };
+}

@@ -8,10 +8,13 @@ namespace HotelMotorApi.Services
     {
         private readonly IVehiclesRepository _vehiclesRepository;
         private readonly ICustomerRepository _customerRepository;
-        public VehiclesService(IVehiclesRepository vehiclesRepository, ICustomerRepository customerRepository)
+        private readonly IOrderRepository _orderRepository;
+        public VehiclesService(IVehiclesRepository vehiclesRepository, ICustomerRepository customerRepository, 
+            IOrderRepository orderRepository)
         {
             _vehiclesRepository = vehiclesRepository;
             _customerRepository = customerRepository;
+            _orderRepository = orderRepository;
         }
 
         public async Task<IEnumerable<Vehicle>> GetVehiclesAsync()
@@ -22,6 +25,16 @@ namespace HotelMotorApi.Services
         public async Task<Vehicle> GetVehicleByIdAsync(int id)
         {
             return await _vehiclesRepository.GetVehicleByIdAsync(id);
+        }
+        
+        public async Task<IEnumerable<Order>> GetOrdersByVehicleIdAsync(int vehicleId)
+        {
+            var vehicle = await _vehiclesRepository.GetVehicleByIdAsync(vehicleId);
+            if (vehicle == null)
+                throw new ApplicationException("El vehículo con Id " + vehicleId + " no fue encontrado");
+
+            return await _orderRepository.GetByVehicleId(vehicleId);
+            
         }
 
         public async Task<Vehicle> AddVehicleAsync(AddVehicleDTO addVehicleDto)
