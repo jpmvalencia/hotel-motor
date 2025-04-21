@@ -2,6 +2,7 @@
 using AutoMapper;
 using HotelMotorShared.Dtos.OrderDTOs;
 using HotelMotorShared.Models;
+using HotelMotorShared.DTOs.ServiceDTOs;
 
 namespace HotelMotorApi.Services
 {
@@ -105,13 +106,51 @@ namespace HotelMotorApi.Services
 
             await _orderDetailsRepository.AssignServicesToOrderAsync(orderId, servicesIds);
 
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order != null)
+                await UpdateOrderTotalAmountAsync(order);
+
             var updatedOrder = await _orderRepository.GetByIdAsync(orderId);
             return _mapper.Map<OrderDTO>(updatedOrder);
         }
 
         public async Task<bool> DeleteServiceFromOrder(int orderId, int serviceId)
         {
-            return await _orderDetailsRepository.RemoveServiceFromOrderAsync(orderId, serviceId);
+            var serviceToRemove = await _serviceService.GetServiceByIdAsync(serviceId);
+            if (serviceToRemove == null)
+            {
+                throw new ApplicationException($"El servicio con ID {serviceId} no existe.");
+            }
+
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                throw new ApplicationException($"La orden con ID {orderId} no existe.");
+            }
+            var isServiceAssigned = await _orderDetailsRepository.IsServiceAssignedToOrderAsync(orderId, serviceId);
+            if (!isServiceAssigned)
+            {
+                throw new ApplicationException($"El servicio con ID {serviceId} no está asignado a la orden con ID {orderId}.");
+            }
+
+            var result = await _orderDetailsRepository.RemoveServiceFromOrderAsync(orderId, serviceId);
+
+            if (result)
+            {
+                order.TotalAmount -= serviceToRemove.Price;
+                await _orderRepository.UpdateAsync(order);
+            }
+
+            return result;
+        }
+
+        public async Task<OrderDTO> UpdateOrderTotalAmountAsync(Order order)
+        {
+            var orderDetails = await _orderDetailsRepository.GetServicesByOrderIdAsync(order.Id);
+            var totalAmount = orderDetails.Sum(od => od.Service.Price);
+            order.TotalAmount = totalAmount;
+            await _orderRepository.UpdateAsync(order);
+            return _mapper.Map<OrderDTO>(order);
         }
     }
 }
