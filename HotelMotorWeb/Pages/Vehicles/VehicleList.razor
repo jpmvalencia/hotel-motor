@@ -6,9 +6,18 @@
 
 <h3 class="mb-4">Lista de Vehículos</h3>
 
+<div class="input-group mb-3">
+    <input @bind="searchTerm" class="form-control" placeholder="Buscar por nombre o correo del cliente" />
+    <button class="btn btn-outline-primary" @onclick="SearchVehiclesByCustomer">Buscar</button>
+</div>
+
 @if (isLoading)
 {
     <p class="text-muted">Cargando...</p>
+}
+else if (!string.IsNullOrEmpty(notFoundMessage))
+{
+    <div class="alert alert-warning">@notFoundMessage</div>
 }
 else if (vehicles != null && vehicles.Any())
 {
@@ -25,13 +34,15 @@ else
 }
 
 <NavLink href="/vehicles/create"
-class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center"
-style="width: 60px; height: 60px;">
+         class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center"
+         style="width: 60px; height: 60px;">
     <span class="fs-4">+</span>
 </NavLink>
 
 @code {
     private List<VehicleDTO>? vehicles;
+    private string searchTerm = string.Empty;
+    private string? notFoundMessage;
     private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
@@ -41,13 +52,36 @@ style="width: 60px; height: 60px;">
 
     private async Task LoadVehiclesAsync()
     {
+        isLoading = true;
         vehicles = await VehiclesService.GetVehiclesAsync();
+        notFoundMessage = null;
+        isLoading = false;
+    }
+
+    private async Task SearchVehiclesByCustomer()
+    {
+        isLoading = true;
+        notFoundMessage = null;
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            await LoadVehiclesAsync();
+            return;
+        }
+
+        vehicles = await VehiclesService.GetVehiclesByCustomerSearchTermAsync(searchTerm);
+
+        if (vehicles == null || vehicles.Count == 0)
+        {
+            notFoundMessage = "No se encontraron vehículos para el cliente ingresado.";
+        }
+
         isLoading = false;
     }
 
     private async Task UpdateVehicle(VehicleDTO updatedVehicle)
     {
-		await LoadVehiclesAsync();
+        await LoadVehiclesAsync();
     }
 
     private async Task DeleteVehicle(VehicleDTO vehicle)
