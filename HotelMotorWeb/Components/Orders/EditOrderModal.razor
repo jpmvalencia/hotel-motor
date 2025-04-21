@@ -1,0 +1,80 @@
+﻿@using HotelMotorShared.Models
+@using HotelMotorShared.Dtos.OrderDTOs
+@using HotelMotorWeb.Services.Orders
+@inject OrderService OrderService
+
+@if (IsVisible)
+{
+    <div>
+        <div class="modal-backdrop fade show" style="background-color: rgba(0, 0, 0, 0.5);"></div>
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar orden</h5>
+                        <button type="button" class="btn-close" @onclick="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="Order" OnValidSubmit="HandleEditSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="form-floating mb-3">
+                                <InputTextArea id="summary" class="form-control" rows="3" cols="40" @bind-Value="Order.Summary" placeholder="Resumen de la orden" />
+                                <label for="summary">Resumen</label>
+                                <ValidationMessage For="@(() => Order.Summary)" />
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <InputDate id="due-date" class="form-control" @bind-Value="Order.DueDate" />
+                                <label for="due-date">Fecha de vencimiento</label>
+                                <ValidationMessage For="@(() => Order.DueDate)" />
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <InputSelect @bind-Value="Order.Status" class="form-control">
+                                    <option value="">Select Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="InProgress">InProgress</option>
+                                    <option value="Completed">Completed</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => Order.Status)" />
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Actualizar</button>
+
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+	[Parameter] public bool IsVisible { get; set; }
+	[Parameter] public OrderDTO Order { get; set; }
+	[Parameter] public EventCallback OnClose { get; set; }
+	[Parameter] public EventCallback<OrderDTO> OnUpdate { get; set; }
+
+    private async Task HandleEditSubmit()
+    {
+        var updateDto = new OrderUpdateDTO
+            {
+                Summary = Order.Summary,
+                DueDate = Order.DueDate,
+                Status = Enum.TryParse<OrderStatus>(Order.Status, out var status) ? status : null
+            };
+
+        var result = await OrderService.UpdateOrderAsync(Order.Id, updateDto);
+        if (result)
+        {
+            await OnUpdate.InvokeAsync(Order);
+            await OnClose.InvokeAsync();
+        }
+    }
+
+	private void Close() => OnClose.InvokeAsync();
+}

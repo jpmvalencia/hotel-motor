@@ -46,7 +46,7 @@ namespace HotelMotorApi.Services
                 Summary = orderDto.Summary,
                 Vehicle = vehicle,
                 CreatedAt = DateTime.Now,
-                DueDate = DateTime.Now.AddDays(orderDto.DueDateDays),
+                DueDate = orderDto.DueDate,
                 TotalAmount = 0.0m,
                 Status = OrderStatus.Pending
             };
@@ -58,16 +58,17 @@ namespace HotelMotorApi.Services
         {
             var existingOrder = await _orderRepository.GetByIdAsync(id);
             if (existingOrder == null)
-                return null;
+                throw new Exception("No se proporcionaron los datos correctamente");
 
             if (orderDto.Summary != null)
+            {
                 existingOrder.Summary = orderDto.Summary;
-
+            }
             if (orderDto.Status.HasValue)
+            {
                 existingOrder.Status = orderDto.Status.Value;
-
-            if (orderDto.DueDateDays.HasValue)
-                existingOrder.DueDate = DateTime.Now.AddDays(orderDto.DueDateDays.Value);
+            }
+            existingOrder.DueDate = orderDto.DueDate;
 
             await _orderRepository.UpdateAsync(existingOrder);
             return _mapper.Map<OrderDTO>(existingOrder);

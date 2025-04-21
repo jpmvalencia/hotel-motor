@@ -1,4 +1,8 @@
 ﻿@using HotelMotorShared.Dtos.OrderDTOs
+@using HotelMotorWeb.Services.Orders
+@using HotelMotorShared.Models
+@inject OrderService OrderService
+@inject IJSRuntime JSRuntime
 
 <table class="table table-hover table-bordered">
     <thead class="table-light">
@@ -8,6 +12,7 @@
             <th>Fecha de vencimiento</th>
             <th>Descripción</th>
             <th>Estado</th>
+            <th>Valor total</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -24,24 +29,58 @@
                         @order.Status
                     </span>
                 </td>
+                <th>@order.TotalAmount</th>
                 <td>
-                    <button class="btn btn-primary btn-sm">Editar</button>
-                    <button class="btn btn-danger btn-sm">Eliminar</button>
+                    <button class="btn btn-primary btn-sm" @onclick="() => ShowEditModal(order)">
+                        <i class="bi bi-pencil-fill"></i>
+                        </button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => ConfirmDelete(order)">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
+<EditOrderModal IsVisible="@isEditModalVisible" Order="OrderDto" OnClose="CloseEditModal" OnUpdate="OnUpdate" />
+
 @code {
     [Parameter]
-    public IEnumerable<OrderDTO> Orders { get; set; }
+    public IEnumerable<OrderDTO>? Orders { get; set; }
+    public OrderDTO? OrderDto;
+    [Parameter] public EventCallback<OrderDTO> OnUpdate { get; set; }
+    [Parameter] public EventCallback<OrderDTO> OnDelete { get; set; }
+    private bool isEditModalVisible = false;
 
-    private string GetStatusColor(string status) => status switch
+    private async Task ConfirmDelete(OrderDTO order)
     {
-        "Pending" => "warning",
-        "Completed" => "success",
-        "Inprogress" => "primary",
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Confirmas la eliminación de la orden?"))
+        {
+            var result = await OrderService.DeleteOrderAsync(order.Id);
+            if (result)
+            {
+                await OnDelete.InvokeAsync(order);
+            }
+        }
+    }
+
+    private string GetStatusColor(string status) => Enum.TryParse<OrderStatus>(status, out var parsedStatus) ? parsedStatus switch
+    {
+        OrderStatus.Pending => "warning",
+        OrderStatus.Completed => "success",
+        OrderStatus.InProgress => "primary",
         _ => "secondary"
-    };
+    } : "secondary";
+
+    private void ShowEditModal(OrderDTO order)
+    {
+        OrderDto = order;
+        isEditModalVisible = true;
+    }
+
+    private void CloseEditModal()
+    {
+        isEditModalVisible = false;
+    }
 }
