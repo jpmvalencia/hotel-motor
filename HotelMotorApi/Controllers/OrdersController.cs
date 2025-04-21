@@ -171,7 +171,7 @@ namespace HotelMotorApi.Controllers
         }
 
         [HttpDelete("{orderId}/delete-service")]
-        public async Task<ActionResult> DeleteServiceFromOrder(int orderId, [FromBody] int serviceId)
+        public async Task<ActionResult> DeleteServiceFromOrder(int orderId, [FromQuery] int serviceId)
         {
             try
             {

@@ -1,7 +1,10 @@
 ﻿@using HotelMotorShared.Models
+@using HotelMotorShared.DTOs.ServiceDTOs;
 @using HotelMotorShared.Dtos.OrderDTOs
 @using HotelMotorWeb.Services.Orders
+@using HotelMotorWeb.Services.Services
 @inject OrderService OrderService
+@inject ServiceService ServiceService
 
 @if (IsVisible)
 {
@@ -39,7 +42,17 @@
                                     <option value="Completed">Completed</option>
                                 </InputSelect>
                                 <ValidationMessage For="@(() => Order.Status)" />
+
                             </div>
+
+                            <label for="services">Servicios</label>
+                            <select id="services" multiple class="form-select" @onchange="OnServicesChanged">
+                                @foreach (var service in Services)
+                                {
+                                    <option value="@service.Id" selected="@SelectedServiceIds.Contains(service.Id)">@service.Name</option>
+                                }
+                            </select>
+                            <ValidationMessage For="@(() => Order.Services)" />
 
                             <div class="modal-footer">
                                 <button type="submit" class="btn btn-primary">Actualizar</button>
@@ -54,10 +67,30 @@
 }
 
 @code {
-	[Parameter] public bool IsVisible { get; set; }
-	[Parameter] public OrderDTO Order { get; set; }
-	[Parameter] public EventCallback OnClose { get; set; }
-	[Parameter] public EventCallback<OrderDTO> OnUpdate { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public OrderDTO Order { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<OrderDTO> OnUpdate { get; set; }
+
+    private List<ServiceDto> Services { get; set; } = new List<ServiceDto>();
+    private List<int> OrderServices { get; set; } = new List<int>();
+    private List<int> SelectedServiceIds { get; set; } = new List<int>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Order = new OrderDTO();
+        await LoadServices();
+    }
+
+    private void OnServicesChanged(ChangeEventArgs e)
+    {
+        var selectedValues = e.Value as IEnumerable<string>;
+        SelectedServiceIds = selectedValues?.Select(int.Parse).ToList() ?? new List<int>();
+        foreach(var _ in SelectedServiceIds)
+        {
+            Console.WriteLine(_);
+        }
+    }
 
     private async Task HandleEditSubmit()
     {
@@ -65,15 +98,37 @@
             {
                 Summary = Order.Summary,
                 DueDate = Order.DueDate,
-                Status = Enum.TryParse<OrderStatus>(Order.Status, out var status) ? status : null
+                Status = Enum.TryParse<OrderStatus>(Order.Status, out var status) ? status : (OrderStatus?)null
             };
 
         var result = await OrderService.UpdateOrderAsync(Order.Id, updateDto);
-        if (result)
+
+        List<int> serviceIds = null;
+
+        if (SelectedServiceIds != null && SelectedServiceIds.Count > 0)
+        {
+            serviceIds = SelectedServiceIds.ToList();
+        }
+        bool result2 = true;
+        if (serviceIds != null && serviceIds.Count > 0)
+        {
+            result2 = await OrderService.AssignServicesToOrderAsync(Order.Id, serviceIds);
+        }
+
+        if (result && result2)
         {
             await OnUpdate.InvokeAsync(Order);
             await OnClose.InvokeAsync();
         }
+    }
+
+
+    private async Task LoadServices()
+    {
+        var services = await ServiceService.GetServicesAsync();
+
+        var assignedServiceIds = Order.Services.Select(s => s.Id).ToHashSet();
+        Services = services.Where(service => !assignedServiceIds.Contains(service.Id)).ToList();
     }
 
 	private void Close() => OnClose.InvokeAsync();
