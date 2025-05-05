@@ -33,7 +33,6 @@ namespace HotelMotorWeb.Services.Orders
         }
         public async Task<bool> RemoveServiceFromOrderAsync(int orderId, int serviceId)
         {
-            // Fix: Replace DeleteFromJsonAsync with DeleteAsync and pass serviceId in the query string
             var response = await _httpClient.DeleteAsync($"orders/{orderId}/delete-service?serviceId={serviceId}");
             return response.IsSuccessStatusCode;
         }
