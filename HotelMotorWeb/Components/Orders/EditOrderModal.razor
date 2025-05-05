@@ -46,12 +46,21 @@
                             </div>
 
                             <label for="services">Servicios</label>
-                            <select id="services" multiple class="form-select" @onchange="OnServicesChanged">
-                                @foreach (var service in Services)
-                                {
-                                    <option value="@service.Id" selected="@SelectedServiceIds.Contains(service.Id)">@service.Name</option>
-                                }
-                            </select>
+
+                            @foreach (var service in Services)
+                            {
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input"
+                                    type="checkbox"
+                                    id="service-@service.Id"
+                                    checked="@IsServiceSelected(service.Id)"
+                                    @onchange="@(e => ToggleServiceSelection(service.Id, (bool)e.Value))" />
+                                    <label class="form-check-label" for="service-@service.Id">
+                                        @service.Name - @service.Price.ToString("C")
+                                    </label>
+                                </div>
+                            }
+
                             <ValidationMessage For="@(() => Order.Services)" />
 
                             <div class="modal-footer">
@@ -75,6 +84,7 @@
     private List<ServiceDto> Services { get; set; } = new List<ServiceDto>();
     private List<int> OrderServices { get; set; } = new List<int>();
     private List<int> SelectedServiceIds { get; set; } = new List<int>();
+    private List<int> ServicesToDelete { get; set; } = new List<int>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,13 +92,29 @@
         await LoadServices();
     }
 
-    private void OnServicesChanged(ChangeEventArgs e)
+    private bool IsServiceSelected(int serviceId)
     {
-        var selectedValues = e.Value as IEnumerable<string>;
-        SelectedServiceIds = selectedValues?.Select(int.Parse).ToList() ?? new List<int>();
-        foreach(var _ in SelectedServiceIds)
+        return Order.Services.Any(s => s.Id == serviceId);
+    }
+
+    private void ToggleServiceSelection(int serviceId, bool isChecked)
+    {
+        if (isChecked)
         {
-            Console.WriteLine(_);
+            if (!Order.Services.Any(s => s.Id == serviceId))
+            {
+                SelectedServiceIds.Add(serviceId);
+                ServicesToDelete.Remove(serviceId);
+            }
+        }
+        else
+        {
+            var serviceToRemove = Order.Services.FirstOrDefault(s => s.Id == serviceId);
+            if (serviceToRemove != null)
+            {
+                SelectedServiceIds.Remove(serviceToRemove.Id);
+                ServicesToDelete.Add(serviceToRemove.Id);
+            }
         }
     }
 
@@ -114,11 +140,20 @@
         {
             result2 = await OrderService.AssignServicesToOrderAsync(Order.Id, serviceIds);
         }
-
-        if (result && result2)
+        bool result3 = true;
+        if (ServicesToDelete != null && ServicesToDelete.Count > 0)
+        {
+            foreach(var _ in ServicesToDelete)
+                {
+                    result3 = await OrderService.RemoveServiceFromOrderAsync(Order.Id, _);
+                }
+        }
+        if (result && result2 && result3)
         {
             await OnUpdate.InvokeAsync(Order);
             await OnClose.InvokeAsync();
+            SelectedServiceIds?.Clear();
+            ServicesToDelete?.Clear();
         }
     }
 
