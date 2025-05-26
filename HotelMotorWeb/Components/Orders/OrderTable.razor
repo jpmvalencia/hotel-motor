@@ -43,7 +43,13 @@
     </tbody>
 </table>
 
-<EditOrderModal IsVisible="@isEditModalVisible" Order="OrderDto" OnClose="CloseEditModal" OnUpdate="OnUpdate" />
+@if (OrderDto is not null)
+{
+    <EditOrderModal IsVisible="@isEditModalVisible"
+                    Order="OrderDto"
+                    OnClose="CloseEditModal"
+                    OnUpdate="OnUpdate" />
+}
 
 @code {
     [Parameter]

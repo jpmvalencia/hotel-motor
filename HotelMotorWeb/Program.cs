@@ -1,6 +1,7 @@
 using HotelMotorWeb;
 using HotelMotorWeb.Services.Auth;
 using HotelMotorWeb.Services.Orders;
+using HotelMotorWeb.Services.Pdfs;
 using HotelMotorWeb.Services.Services;
 using HotelMotorWeb.Services.Vehicles;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -20,6 +21,7 @@ builder.Services.AddScoped<CustomAuthProvider>(); // Para poder acceder a método
 builder.Services.AddScoped<VehiclesService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ServiceService>();
+builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<AuthService>();
 
 await builder.Build().RunAsync();
