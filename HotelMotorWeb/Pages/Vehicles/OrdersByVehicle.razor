@@ -1,26 +1,32 @@
 ﻿@page "/vehicles/{Id:int}/orders"
 @using HotelMotorShared.Dtos.OrderDTOs
+@using HotelMotorWeb.Services.Pdfs
 @using HotelMotorWeb.Services.Vehicles
 @using HotelMotorWeb.Components.Orders
 @inject VehiclesService VehiclesService
+@inject PdfService PdfService;
+@inject IJSRuntime JSRuntime;
 
 <h3 class="mb-4">Lista de órdenes del vehículo</h3>
 @if (isLoading)
 {
-    <p class="text-muted">Cargando...</p>
+	<p class="text-muted">Cargando...</p>
 }
 else if (orders != null && orders.Any())
 {
+	<button class="btn btn-secondary mb-3" @onclick="DownloadPdf">
+		Descargar PDF
+	</button>
 	<OrderTable Orders="orders" OnUpdate="UpdateOrder" OnDelete="DeleteOrder" />
 }
 else
 {
-    <p class="text-muted">Este vehículo no tiene órdenes.</p>
+	<p class="text-muted">Este vehículo no tiene órdenes.</p>
 }
 
 <NavLink href="@($"/vehicles/{Id}/orders/create")"
-		 class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center"
-		 style="width: 60px; height: 60px;">
+class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center"
+style="width: 60px; height: 60px;">
 	<span class="fs-4">+</span>
 </NavLink>
 
@@ -50,5 +56,15 @@ else
 	private async Task DeleteOrder(OrderDTO orderDto)
 	{
 		await LoadOrdersAsync();
+	}
+
+
+	private async Task DownloadPdf()
+	{
+		if (orders is null) return;
+
+		var pdfBytes = await PdfService.GetPdfAsync(orders);
+		var fileName = $"ordenes_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+		await JSRuntime.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(pdfBytes));
 	}
 }

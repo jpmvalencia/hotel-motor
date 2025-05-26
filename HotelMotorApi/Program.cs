@@ -81,6 +81,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IVehiclesService, VehiclesService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 // Validators
 builder.Services.AddScoped<IValidator<CustomerCreateDto>, CustomerCreateValidator>();
