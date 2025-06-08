@@ -3,6 +3,8 @@ using AutoMapper;
 using HotelMotorShared.Dtos.OrderDTOs;
 using HotelMotorShared.Models;
 using HotelMotorShared.DTOs.ServiceDTOs;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using HotelMotorApi.Modules.EmailSender.Interfaces;
 
 namespace HotelMotorApi.Services
 {
@@ -12,15 +14,18 @@ namespace HotelMotorApi.Services
         private readonly IOrderDetailsRepository _orderDetailsRepository;
         private readonly IServiceService _serviceService;
         private readonly IVehiclesService _vehiclesService;
+        private readonly IEmailSenderService _emailSenderService;
         private readonly IMapper _mapper;
 
         public OrderService(IOrderRepository orderRepository, IOrderDetailsRepository orderDetailsRepository,
-            IServiceService serviceService, IVehiclesService vehiclesService, IMapper mapper)
+            IServiceService serviceService, IVehiclesService vehiclesService, 
+            IEmailSenderService emailSenderService, IMapper mapper)
         {
             _orderRepository = orderRepository;
             _orderDetailsRepository = orderDetailsRepository;
             _serviceService = serviceService;
             _vehiclesService = vehiclesService;
+            _emailSenderService = emailSenderService;
             _mapper = mapper;
         }
 
@@ -68,6 +73,15 @@ namespace HotelMotorApi.Services
             if (orderDto.Status.HasValue)
             {
                 existingOrder.Status = orderDto.Status.Value;
+            }
+            if (orderDto.Status.HasValue && orderDto.Status.Value == OrderStatus.Completed)
+            {
+                await _emailSenderService.SendEmailAsync(new MailRequest
+                {
+                    ToEmail = "correo",
+                    Subject = "Orden Completada",
+                    Body = $"Su orden con ID {existingOrder.Id} ha sido completada. Gracias por su preferencia."
+                });
             }
             existingOrder.DueDate = orderDto.DueDate;
 
