@@ -79,11 +79,33 @@ namespace HotelMotorApi.Services
             {
                 var customer = await _vehiclesService.GetCustomerByVehicleIdAsync(orderDto.VehicleId);
                 await _emailSenderService.SendEmailAsync
-                    (
-                        customer?.Email,
-                        "Orden Completada",
-                        $"Su orden con ID {existingOrder.Id} ha sido completada. Gracias por su preferencia."
-                    );
+                (
+                   customer?.Email,
+                   $"Confirmación de finalización de su orden – ID {existingOrder.Id}",
+                   $@"
+                    <html>
+                    <body style='font-family: Arial, sans-serif; color: #333;'>
+                        <h2 style='color: #2E86C1;'>Confirmación de finalización de su orden</h2>
+                        <p>Estimado/a cliente,</p>
+                        <p>
+                            Nos complace informarle que su orden con el número de identificación <strong>{existingOrder.Id}</strong> ha sido 
+                            <strong>completada exitosamente</strong>.
+                        </p>
+                        <p>
+                            Le agradecemos sinceramente por confiar en nosotros y elegir nuestros servicios. 
+                            Su satisfacción es muy importante para nosotros, y esperamos poder atenderle nuevamente en el futuro.
+                        </p>
+                        <p>
+                            Si tiene alguna pregunta o requiere asistencia adicional, no dude en contactarnos. 
+                            Estamos a su disposición para ayudarle.
+                        </p>
+                        <p>Gracias por su preferencia.</p>
+                        <br />
+                        <p>Atentamente,</p>
+                        <p><strong>El equipo de HotelMotor</strong></p>
+                    </body>
+                    </html>"
+                );
             }
             existingOrder.DueDate = orderDto.DueDate;
             await _orderRepository.UpdateAsync(existingOrder);
