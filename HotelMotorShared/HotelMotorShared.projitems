@@ -25,10 +25,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\UserDTOs\RegisterDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\VehicleDTO.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Customer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\MailRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Order.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\OrderDetails.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\OrderStatus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Service.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SmtpSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\User.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Vehicle.cs" />
   </ItemGroup>
