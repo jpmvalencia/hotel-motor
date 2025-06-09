@@ -6,5 +6,6 @@ namespace HotelMotorApi.Interfaces
     {
         Task<User?> GetByEmailAsync(string email);
         Task<User> CreateUserAsync(User user);
+        Task<Boolean> AlternateAdminAsync(string email);
     }
 }
