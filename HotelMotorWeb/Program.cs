@@ -7,6 +7,7 @@ using HotelMotorWeb.Services.Orders;
 using HotelMotorWeb.Services.Pdfs;
 using HotelMotorWeb.Services.Services;
 using HotelMotorWeb.Services.Vehicles;
+using HotelMotorWeb.Services.WordFiles;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -30,6 +31,7 @@ builder.Services.AddScoped<VehiclesService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ServiceService>();
 builder.Services.AddScoped<PdfService>();
+builder.Services.AddScoped<WordService>();
 builder.Services.AddScoped<AuthService>();
 
 await builder.Build().RunAsync();

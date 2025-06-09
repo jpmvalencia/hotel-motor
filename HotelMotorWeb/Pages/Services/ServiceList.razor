@@ -1,7 +1,11 @@
-﻿@page "/services"
+@page "/services"
 @using HotelMotorShared.DTOs.ServiceDTOs
 @using HotelMotorWeb.Services.Services
 @using HotelMotorWeb.Components.Services
+@using HotelMotorWeb.Services.WordFiles
+@inject ServiceService ServiceService
+@inject WordService WordService
+@inject IJSRuntime JSRuntime;
 @using Microsoft.AspNetCore.Components.Authorization
 @using HotelMotorWeb.Services.Auth
 @inject ServiceService ServiceService
@@ -17,6 +21,9 @@
 }
 else if (services != null && services.Any())
 {
+    <button class="btn btn-secondary mb-3" @onclick="DownloadServicesToWord">
+        Generar Servicios a Word
+    </button>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @foreach (var service in services)
         {
@@ -72,5 +79,15 @@ else
     private async Task HandleServiceDeleted(ServiceDto deletedService)
     {
         await LoadServicesAsync();
+    }
+
+    private async Task DownloadServicesToWord()
+    {
+        if (services is null) return;
+
+        var wordBytes = await WordService.GetWordWithServicesAsync(services);
+        var fileName = $"servicios_{DateTime.Now:yyyyMMdd_HHmmss}.docx";
+
+        await JSRuntime.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(wordBytes));
     }
 }

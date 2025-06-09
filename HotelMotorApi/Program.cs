@@ -14,6 +14,8 @@ using System.Text;
 using HotelMotorShared.Models;
 using HotelMotorApi.Modules.EmailSender.Interfaces;
 using HotelMotorApi.Modules.EmailSender.Services;
+using HotelMotorApi.Modules.WordGenerator.Interfaces;
+using HotelMotorApi.Modules.WordGenerator.Services;
 
 DotNetEnv.Env.Load();
 
@@ -81,6 +83,7 @@ builder.Services.AddScoped<IVehiclesService, VehiclesService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 // Email Sender
 builder.Services.Configure<SmtpSettings>(options =>
