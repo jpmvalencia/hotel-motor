@@ -6,5 +6,6 @@ namespace HotelMotorApi.Interfaces
     {
         Task<AuthResponseDto?> RegisterAsync(RegisterDto registerDto);
         Task<AuthResponseDto?> LoginAsync(LoginDto loginDto);
+        Task<Boolean> AlternateAdminAsync(string email);
     }
 }

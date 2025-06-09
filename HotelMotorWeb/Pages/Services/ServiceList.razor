@@ -1,4 +1,4 @@
-﻿@page "/services"
+@page "/services"
 @using HotelMotorShared.DTOs.ServiceDTOs
 @using HotelMotorWeb.Services.Services
 @using HotelMotorWeb.Components.Services
@@ -6,6 +6,12 @@
 @inject ServiceService ServiceService
 @inject WordService WordService
 @inject IJSRuntime JSRuntime;
+@using Microsoft.AspNetCore.Components.Authorization
+@using HotelMotorWeb.Services.Auth
+@inject ServiceService ServiceService
+@inject AuthenticationStateProvider AuthProvider
+@inject CustomAuthProvider CustomAuthProvider
+@inject NavigationManager Navigation
 
 <h3 class="mb-4 fw-semibold">Lista de Servicios</h3>
 
@@ -44,6 +50,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+		var isAdminClaim = user.FindFirst(c => c.Type == "IsAdmin")?.Value;
+        bool isAdmin = isAdminClaim == "true" || isAdminClaim == "1";
+
+		if (!isAdmin)
+		{
+			Navigation.NavigateTo("/vehicles", forceLoad: true);
+			return;
+		}
+
         await LoadServicesAsync();
     }
 

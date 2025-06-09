@@ -12,13 +12,8 @@
 
             <!-- Título centrado -->
             <div class="position-absolute start-50 translate-middle-x">
-                <a class="navbar-text h2 text-white text-decoration-none m-0" href="/">HotelMotor</a>
+                <a class="navbar-text h2 text-white text-decoration-none m-0" href="/vehicles">HotelMotor</a>
             </div>
-
-            <NavLink href="grafico" Match="NavLinkMatch.All">
-                <span class="oi oi-graph" aria-hidden="true"></span> Gráfico
-            </NavLink>
-
 
             <!-- Menús desplegables y logout -->
             <AuthorizeView>
@@ -35,6 +30,8 @@
                             </ul>
                         </div>
 
+                        @if (isAdmin)
+                        {
                         <!-- Dropdown Servicios -->
                         <div class="dropdown">
                             <a class="nav-link dropdown-toggle text-bg-dark" href="#" id="serviciosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -45,6 +42,7 @@
                                 <li><a class="dropdown-item" href="/services/create">Añadir nuevo servicio</a></li>
                             </ul>
                         </div>
+                        }
 
                         <!-- Cerrar sesión -->
                         <button class="btn btn-outline-light btn-sm" @onclick="Logout">Cerrar sesión</button>
@@ -60,6 +58,20 @@
 </nav>
 
 @code {
+    private bool isAdmin = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+		if (user.Identity?.IsAuthenticated == true)
+		{
+			var isAdminClaim = user.FindFirst(c => c.Type == "IsAdmin")?.Value;
+			isAdmin = isAdminClaim == "true" || isAdminClaim == "1";
+		}
+    }
+
     private async Task Logout()
     {
         await CustomAuthProvider.MarkUserAsLoggedOut();

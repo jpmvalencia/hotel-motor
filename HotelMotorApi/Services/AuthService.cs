@@ -29,7 +29,8 @@ namespace HotelMotorApi.Services
             {
                 Name = dto.Name,
                 Email = dto.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                isAdmin = false
             };
 
             await _userRepository.CreateUserAsync(user);
@@ -63,7 +64,8 @@ namespace HotelMotorApi.Services
             {
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Name, user.Name)
+        new Claim(ClaimTypes.Name, user.Name),
+        new Claim("IsAdmin", user.isAdmin.ToString().ToLower())
     };
 
             var token = new JwtSecurityToken(
@@ -83,5 +85,12 @@ namespace HotelMotorApi.Services
                 Name = user.Name
             };
         }
+
+        public async Task<Boolean> AlternateAdminAsync(string email)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+            return await _userRepository.AlternateAdminAsync(email);
+        }
     }
+
 }

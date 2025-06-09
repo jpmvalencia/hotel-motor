@@ -35,5 +35,14 @@ namespace HotelMotorApi.Controllers
 
             return Ok(new { status = 200, message = "Inicio de sesión exitoso", data = result });
         }
+
+        [HttpPatch("{email}/alternate-admin")]
+        public async Task<IActionResult> AlternateAdmin(string email)
+        {
+            var result = await _authService.AlternateAdminAsync(email);
+            if (result == false)
+                return NotFound(new { status = 404, message = "Usuario no encontrado" });
+            return Ok(new { status = 200, message = "Rol de administrador alternado", data = result });
+        }
     }
 }
