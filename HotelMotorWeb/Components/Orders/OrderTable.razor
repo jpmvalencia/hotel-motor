@@ -4,6 +4,14 @@
 @inject OrderService OrderService
 @inject IJSRuntime JSRuntime
 
+<div style="max-width: 600px; height: 300px; margin-bottom: 1rem;">
+    <BarChart @ref="barChart" TItem="decimal" />
+</div>
+
+<Button class="btn btn-outline-primary mb-3" @onclick="RedrawChart">
+    Actualizar gráfico
+</Button>
+
 <table class="table table-hover table-bordered">
     <thead class="table-light">
         <tr>
@@ -58,6 +66,36 @@
     [Parameter] public EventCallback<OrderDTO> OnUpdate { get; set; }
     [Parameter] public EventCallback<OrderDTO> OnDelete { get; set; }
     private bool isEditModalVisible = false;
+
+    BarChart<decimal>? barChart;
+
+    private async Task RedrawChart()
+    {
+        if (Orders is null || !Orders.Any() || barChart is null)
+            return;
+
+        await barChart.Clear();
+
+        var labels = Orders.Select(o => $"Orden {o.Id}").ToArray();
+        var dataset = new BarChartDataset<decimal>
+            {
+                Label = "Monto total por orden",
+                Data = Orders.Select(o => o.TotalAmount).ToList(),
+                BackgroundColor = ChartColor.FromRgba(54, 162, 235, 0.6f),
+                BorderColor = ChartColor.FromRgba(54, 162, 235, 1f),
+                BorderWidth = 1
+            };
+
+        await barChart.AddLabelsDatasetsAndUpdate(labels, dataset);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RedrawChart();
+        }
+    }
 
     private async Task ConfirmDelete(OrderDTO order)
     {
