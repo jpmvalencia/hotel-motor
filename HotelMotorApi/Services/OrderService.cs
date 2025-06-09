@@ -1,8 +1,11 @@
-﻿using HotelMotorApi.Interfaces;
-using AutoMapper;
+﻿using AutoMapper;
+using HotelMotorApi.Interfaces;
+using HotelMotorApi.Modules.EmailSender.Interfaces;
 using HotelMotorShared.Dtos.OrderDTOs;
-using HotelMotorShared.Models;
 using HotelMotorShared.DTOs.ServiceDTOs;
+using HotelMotorShared.Models;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace HotelMotorApi.Services
 {
@@ -12,15 +15,18 @@ namespace HotelMotorApi.Services
         private readonly IOrderDetailsRepository _orderDetailsRepository;
         private readonly IServiceService _serviceService;
         private readonly IVehiclesService _vehiclesService;
+        private readonly IEmailSenderService _emailSenderService;
         private readonly IMapper _mapper;
 
         public OrderService(IOrderRepository orderRepository, IOrderDetailsRepository orderDetailsRepository,
-            IServiceService serviceService, IVehiclesService vehiclesService, IMapper mapper)
+            IServiceService serviceService, IVehiclesService vehiclesService, 
+            IEmailSenderService emailSenderService, IMapper mapper)
         {
             _orderRepository = orderRepository;
             _orderDetailsRepository = orderDetailsRepository;
             _serviceService = serviceService;
             _vehiclesService = vehiclesService;
+            _emailSenderService = emailSenderService;
             _mapper = mapper;
         }
 
@@ -69,8 +75,17 @@ namespace HotelMotorApi.Services
             {
                 existingOrder.Status = orderDto.Status.Value;
             }
+            if (orderDto.Status.HasValue && orderDto.Status.Value == OrderStatus.Completed)
+            {
+                var customer = await _vehiclesService.GetCustomerByVehicleIdAsync(orderDto.VehicleId);
+                await _emailSenderService.SendEmailAsync
+                    (
+                        customer?.Email,
+                        "Orden Completada",
+                        $"Su orden con ID {existingOrder.Id} ha sido completada. Gracias por su preferencia."
+                    );
+            }
             existingOrder.DueDate = orderDto.DueDate;
-
             await _orderRepository.UpdateAsync(existingOrder);
             return _mapper.Map<OrderDTO>(existingOrder);
         }

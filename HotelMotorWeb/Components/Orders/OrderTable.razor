@@ -13,26 +13,65 @@
     Actualizar gráfico
 </Button>
 
+<div class="mb-3 d-flex gap-3 align-items-end flex-wrap">
+    <div>
+        <label>Estado:</label>
+        <select class="form-select" value="@statusFilter" @onchange="HandleStatusFilterChange">
+            <option value="Todos">Todos</option>
+            <option value="Pending">Pendiente</option>
+            <option value="InProgress">En progreso</option>
+            <option value="Completed">Compleatada</option>
+        </select>
+    </div>
+    <div>
+        <label>Vencimiento desde:</label>
+        <input type="date" class="form-control" value="@dueDateFrom?.ToString("yyyy-MM-dd")" @onchange="HandleDueDateFromChange" />
+    </div>
+    <div>
+        <label>Hasta:</label>
+        <input type="date" class="form-control" value="@dueDateTo?.ToString("yyyy-MM-dd")" @onchange="HandleDueDateToChange" />
+    </div>
+</div>
+
 <table class="table table-hover table-bordered">
-    <thead class="table-light">
+    <thead class="table-dark">
         <tr>
-            <th>ID</th>
-            <th>Fecha de creación</th>
-            <th>Fecha de vencimiento</th>
-            <th>Descripción</th>
-            <th>Estado</th>
-            <th>Valor total</th>
+            <th @onclick="() => SortTable(nameof(OrderDto.Id))"
+                style="cursor: pointer; white-space: nowrap;">
+                ID @SortIcon(nameof(OrderDto.Id))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.CreatedAt))"
+                style="cursor: pointer; white-space: nowrap;">
+                Fecha de creación @SortIcon(nameof(OrderDto.CreatedAt))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.DueDate))"
+                style="cursor: pointer; white-space: nowrap;">
+                Fecha de vencimiento @SortIcon(nameof(OrderDto.DueDate))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.Summary))"
+                style="cursor: pointer; white-space: nowrap;">
+                Descripción @SortIcon(nameof(OrderDto.Summary))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.Status))"
+                style="cursor: pointer; white-space: nowrap;">
+                Estado @SortIcon(nameof(OrderDto.Status))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.TotalAmount))"
+                style="cursor: pointer; white-space: nowrap;">
+                Valor total @SortIcon(nameof(OrderDto.TotalAmount))
+            </th>
+
             <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var order in Orders)
+        @foreach (var order in filteredOrders)
         {
             <tr>
                 <td>@order.Id</td>
-                <td>@order.CreatedAt.ToShortDateString()</td>
-                <td>@order.DueDate.ToShortDateString()</td>
-                <td>@order.Summary</td>
+                <td>@order.CreatedAt.ToString("dd/MM/yyyy")</td>
+                <td>@order.DueDate.ToString("dd/MM/yyyy")</td>
+                <td>@order.Summary</td> 
                 <td>
                     <span class="badge bg-@GetStatusColor(order.Status)">
                         @order.Status
@@ -42,7 +81,7 @@
                 <td>
                     <button class="btn btn-primary btn-sm" @onclick="() => ShowEditModal(order)">
                         <i class="bi bi-pencil-fill"></i>
-                        </button>
+                    </button>
                     <button class="btn btn-danger btn-sm" @onclick="() => ConfirmDelete(order)">
                         <i class="bi bi-trash-fill"></i>
                     </button>
@@ -68,11 +107,18 @@
 @code {
     [Parameter]
     public IEnumerable<OrderDTO>? Orders { get; set; }
+    public IEnumerable<OrderDTO>? filteredOrders { get; set; }
     public OrderDTO? OrderDto;
     [Parameter] public EventCallback<OrderDTO> OnUpdate { get; set; }
     [Parameter] public EventCallback<OrderDTO> OnDelete { get; set; }
     private bool isEditModalVisible = false;
 
+    private string statusFilter = "Todos";
+    private DateTime? dueDateFrom = null;
+    private DateTime? dueDateTo = null;
+
+    private string currentSortColumn = "";
+    private bool sortAscending = true;
     BarChart<decimal>? barChart;
 
     private async Task RedrawChart()
@@ -102,7 +148,7 @@
             await RedrawChart();
         }
     }
-
+s
     private async Task ConfirmDelete(OrderDTO order)
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Confirmas la eliminación de la orden?"))
@@ -123,6 +169,68 @@
         _ => "secondary"
     } : "secondary";
 
+    protected override void OnParametersSet()
+    {
+        if (Orders != null)
+        {
+            ApplyFilters();
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        filteredOrders = Orders?
+            .Where(i =>
+                (statusFilter == "Todos" || i.Status == statusFilter) &&
+                (!dueDateFrom.HasValue || i.DueDate >= dueDateFrom.Value) &&
+                (!dueDateTo.HasValue || i.DueDate <= dueDateTo.Value)
+            ).ToList();
+
+        if (!string.IsNullOrEmpty(currentSortColumn))
+        {
+            SortTable(currentSortColumn, reapply: true);
+        }
+    }
+
+    private void SortTable(string columnName, bool reapply = false)
+    {
+        if (!reapply)
+        {
+            if (currentSortColumn == columnName)
+                sortAscending = !sortAscending;
+            else
+            {
+                currentSortColumn = columnName;
+                sortAscending = true;
+            }
+        }
+
+        filteredOrders = sortAscending
+            ? filteredOrders?.OrderBy(i => GetPropertyValue(i, columnName)).ToList()
+            : filteredOrders?.OrderByDescending(i => GetPropertyValue(i, columnName)).ToList();
+    }
+
+    private object GetPropertyValue(OrderDTO order, string propertyName)
+    {
+        return typeof(OrderDTO).GetProperty(propertyName)?.GetValue(order, null);
+    }
+
+    private RenderFragment SortIcon(string columnName) => builder =>
+    {
+        string iconClass = "bi bi-caret-up";
+        string colorClass = "text-secondary";
+
+        if (currentSortColumn == columnName)
+        {
+            iconClass = sortAscending ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill";
+            colorClass = "text-white";
+        }
+
+        builder.OpenElement(0, "i");
+        builder.AddAttribute(1, "class", $"{iconClass} {colorClass} ms-2");
+        builder.CloseElement();
+    };
+
     private void ShowEditModal(OrderDTO order)
     {
         OrderDto = order;
@@ -134,6 +242,37 @@
         isEditModalVisible = false;
     }
 
+    private void HandleStatusFilterChange(ChangeEventArgs e)
+    {
+        statusFilter = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    private void HandleDueDateFromChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            dueDateFrom = date;
+        }
+        else
+        {
+            dueDateFrom = null;
+        }
+        ApplyFilters();
+    }
+
+    private void HandleDueDateToChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            dueDateTo = date;
+        }
+        else
+        {
+            dueDateTo = null;
+        }
+        ApplyFilters();
+    }
     private async Task ExportOrdersToCsv()
 {
     if (Orders == null || !Orders.Any())
@@ -175,6 +314,4 @@
 
         return escaped;
     }
-
-
 }

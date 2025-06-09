@@ -11,6 +11,9 @@ using HotelMotorShared.Dtos.CustomerDTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using HotelMotorShared.Models;
+using HotelMotorApi.Modules.EmailSender.Interfaces;
+using HotelMotorApi.Modules.EmailSender.Services;
 
 DotNetEnv.Env.Load();
 
@@ -30,10 +33,6 @@ builder.Services.AddCors(options =>
 string jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
 string jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 string jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-
-Console.WriteLine($"JWT_KEY: {jwtKey}");
-Console.WriteLine($"JWT_ISSUER: {jwtIssuer}");
-Console.WriteLine($"JWT_AUDIENCE: {jwtAudience}");
 
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
@@ -83,6 +82,32 @@ builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+// Email Sender
+builder.Services.Configure<SmtpSettings>(options =>
+{
+    var smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER");
+    var smtpPortStr = Environment.GetEnvironmentVariable("SMTP_PORT");
+    var smtpUser = Environment.GetEnvironmentVariable("SMTP_USER");
+    var smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS");
+
+    if (string.IsNullOrEmpty(smtpServer))
+        throw new InvalidOperationException("SMTP_SERVER environment variable is required");
+
+    if (!int.TryParse(smtpPortStr, out int smtpPort))
+        throw new InvalidOperationException("SMTP_PORT must be a valid integer");
+
+    if (string.IsNullOrEmpty(smtpUser))
+        throw new InvalidOperationException("SMTP_USER environment variable is required");
+
+    if (string.IsNullOrEmpty(smtpPass))
+        throw new InvalidOperationException("SMTP_PASS environment variable is required");
+
+    options.Server = smtpServer;
+    options.Port = smtpPort;
+    options.UserName = smtpUser;
+    options.Password = smtpPass;
+});
+builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
 // Validators
 builder.Services.AddScoped<IValidator<CustomerCreateDto>, CustomerCreateValidator>();
 builder.Services.AddScoped<IValidator<CustomerUpdateDto>, CustomerUpdateValidator>();
