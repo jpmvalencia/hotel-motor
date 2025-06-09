@@ -121,9 +121,9 @@ else
             return;
         }
 
-        vehicles = await VehiclesService.GetVehiclesByCustomerSearchTermAsync(searchTerm);
+        filteredVehicles = await VehiclesService.GetVehiclesByCustomerSearchTermAsync(searchTerm);
 
-        if (vehicles == null || vehicles.Count == 0)
+        if (filteredVehicles == null || filteredVehicles.Count == 0)
         {
             notFoundMessage = "No se encontraron vehículos para el cliente ingresado.";
         }

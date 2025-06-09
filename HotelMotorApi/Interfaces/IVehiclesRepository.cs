@@ -11,5 +11,6 @@ namespace HotelMotorApi.Interfaces
         Task<Vehicle> GetVehicleByPlateNumberAsync(string plateNumber);
         Task<Vehicle> UpdateVehicleAsync(int id, Vehicle vehicle);
         Task<bool> DeleteVehicleAsync(int id);
+        Task<Customer?> GetCustomerByVehicleIdAsync(int vehicleId);
     }
 }

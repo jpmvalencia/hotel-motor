@@ -124,9 +124,9 @@
             {
                 Summary = Order.Summary,
                 DueDate = Order.DueDate,
-                Status = Enum.TryParse<OrderStatus>(Order.Status, out var status) ? status : (OrderStatus?)null
+                Status = Enum.TryParse<OrderStatus>(Order.Status, out var status) ? status : (OrderStatus?)null,
+                VehicleId = Order.Vehicle.Id
             };
-
         var result = await OrderService.UpdateOrderAsync(Order.Id, updateDto);
 
         List<int> serviceIds = null;

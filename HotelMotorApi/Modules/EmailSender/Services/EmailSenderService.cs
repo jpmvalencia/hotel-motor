@@ -1,6 +1,7 @@
 ﻿using HotelMotorApi.Modules.EmailSender.Interfaces;
 using HotelMotorShared.Models;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
@@ -9,35 +10,28 @@ namespace HotelMotorApi.Modules.EmailSender.Services
     public class EmailSenderService : IEmailSenderService
     {
         private readonly SmtpSettings _smtpSettings;
-        public EmailSenderService(IOptions<SmtpSettings> smtpSettings)
+        public EmailSenderService(IOptions<SmtpSettings> smtpOptions)
         {
-            _smtpSettings = smtpSettings.Value;
+            _smtpSettings = smtpOptions.Value;
         }
-        public async Task SendEmailAsync(MailRequest mailRequest)
+        public async Task SendEmailAsync(string to, string subject, string body)
         {
-            try
-            {
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress(_smtpSettings.SenderName,
-                    _smtpSettings.SenderEmail));
-                message.To.Add(new MailboxAddress("", mailRequest.ToEmail));
-                message.Subject = mailRequest.Subject;
-                message.Body = new TextPart("html")
-                {
-                    Text = mailRequest.Body
-                };
+            var email = new MimeMessage();
+            email.From.Add(MailboxAddress.Parse(_smtpSettings.UserName));
+            email.To.Add(MailboxAddress.Parse(to));
+            email.Subject = subject;
 
-                using (var client = new SmtpClient())
-                {
-                    await client.ConnectAsync(_smtpSettings.Server);
-                    await client.AuthenticateAsync(_smtpSettings.UserName, _smtpSettings.Password);
-                    await client.SendAsync(message);
-                    await client.DisconnectAsync(true);
-                }
-            } catch (Exception ex)
+            var builder = new BodyBuilder
             {
-                throw new Exception("Ha ocurrido un error " + ex);
-            }
+                HtmlBody = body
+            };
+            email.Body = builder.ToMessageBody();
+
+            using var smtp = new SmtpClient();
+            await smtp.ConnectAsync(_smtpSettings.Server, _smtpSettings.Port, SecureSocketOptions.StartTls);
+            await smtp.AuthenticateAsync(_smtpSettings.UserName, _smtpSettings.Password);
+            await smtp.SendAsync(email);
+            await smtp.DisconnectAsync(true);
         }
     }
 }

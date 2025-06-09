@@ -1,10 +1,11 @@
-﻿using HotelMotorApi.Interfaces;
-using AutoMapper;
-using HotelMotorShared.Dtos.OrderDTOs;
-using HotelMotorShared.Models;
-using HotelMotorShared.DTOs.ServiceDTOs;
-using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using AutoMapper;
+using HotelMotorApi.Interfaces;
 using HotelMotorApi.Modules.EmailSender.Interfaces;
+using HotelMotorShared.Dtos.OrderDTOs;
+using HotelMotorShared.DTOs.ServiceDTOs;
+using HotelMotorShared.Models;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace HotelMotorApi.Services
 {
@@ -76,15 +77,15 @@ namespace HotelMotorApi.Services
             }
             if (orderDto.Status.HasValue && orderDto.Status.Value == OrderStatus.Completed)
             {
-                await _emailSenderService.SendEmailAsync(new MailRequest
-                {
-                    ToEmail = "correo",
-                    Subject = "Orden Completada",
-                    Body = $"Su orden con ID {existingOrder.Id} ha sido completada. Gracias por su preferencia."
-                });
+                var customer = await _vehiclesService.GetCustomerByVehicleIdAsync(orderDto.VehicleId);
+                await _emailSenderService.SendEmailAsync
+                    (
+                        customer?.Email,
+                        "Orden Completada",
+                        $"Su orden con ID {existingOrder.Id} ha sido completada. Gracias por su preferencia."
+                    );
             }
             existingOrder.DueDate = orderDto.DueDate;
-
             await _orderRepository.UpdateAsync(existingOrder);
             return _mapper.Map<OrderDTO>(existingOrder);
         }

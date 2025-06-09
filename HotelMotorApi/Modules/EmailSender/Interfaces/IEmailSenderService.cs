@@ -4,6 +4,6 @@ namespace HotelMotorApi.Modules.EmailSender.Interfaces
 {
     public interface IEmailSenderService
     {
-        Task SendEmailAsync(MailRequest mailRequest);
+        Task SendEmailAsync(string to, string subject, string body);
     }
 }
