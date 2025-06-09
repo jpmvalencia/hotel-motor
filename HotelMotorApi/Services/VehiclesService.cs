@@ -1,8 +1,6 @@
 ﻿using HotelMotorApi.Interfaces;
-using HotelMotorApi.Repositories;
 using HotelMotorShared.Dtos;
 using HotelMotorShared.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelMotorApi.Services
 {
@@ -28,12 +26,7 @@ namespace HotelMotorApi.Services
         {
             return await _vehiclesRepository.GetVehicleByIdAsync(id);
         }
-
-        public async Task<Customer?> GetCustomerByVehicleIdAsync(int vehicleId)
-        {
-            return await _vehiclesRepository.GetCustomerByVehicleIdAsync(vehicleId);     
-        }
-
+        
         public async Task<IEnumerable<Order>> GetOrdersByVehicleIdAsync(int vehicleId)
         {
             var vehicle = await _vehiclesRepository.GetVehicleByIdAsync(vehicleId);

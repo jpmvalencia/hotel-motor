@@ -16,15 +16,6 @@
     <button class="btn btn-outline-primary" @onclick="SearchVehiclesByCustomer">Buscar</button>
 </div>
 
-<div>
-    <label>Tipo de vehículo:</label>
-    <select class="form-select" value="@carType" @onchange="HandleCarTypeChange">
-        <option value="">Todos</option>
-        <option value="car">Automóvil</option>
-        <option value="motorcycle">Motocicleta</option>
-    </select>
-</div>
-
 @if (isLoading)
 {
     <p class="text-muted">Cargando...</p>
@@ -36,7 +27,7 @@ else if (!string.IsNullOrEmpty(notFoundMessage))
 else if (vehicles != null && vehicles.Any())
 {
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        @foreach (var vehicle in filteredVehicles)
+        @foreach (var vehicle in vehicles)
         {
             <VehicleCard Vehicle="vehicle" OnUpdate="UpdateVehicle" OnDelete="DeleteVehicle" />
         }
@@ -55,13 +46,6 @@ else
 
 @code {
     private List<VehicleDTO>? vehicles;
-
-    public List<VehicleDTO>? filteredVehicles { get; set; }
-
-    private string statusFilter = "Todos";
-    private string carType = "";
-
-
     private string searchTerm = string.Empty;
     private string? notFoundMessage;
     private bool isLoading = true;
@@ -78,28 +62,6 @@ else
 		}
 	
         await LoadVehiclesAsync();
-        ApplyFilters();
-    }
-
-    private void HandleCarTypeChange(ChangeEventArgs e)
-    {
-        carType = e.Value?.ToString() ?? "";
-        ApplyFilters();
-    }
-
-    private void ApplyFilters()
-    {
-        if (vehicles == null)
-        {
-            filteredVehicles = null;
-            return;
-        }
-
-        filteredVehicles = vehicles
-            .Where(v => string.IsNullOrEmpty(carType) || v.Type.ToLower() == carType.ToLower())
-            .ToList();
-
-        StateHasChanged();
     }
 
     private async Task LoadVehiclesAsync()
@@ -121,9 +83,9 @@ else
             return;
         }
 
-        filteredVehicles = await VehiclesService.GetVehiclesByCustomerSearchTermAsync(searchTerm);
+        vehicles = await VehiclesService.GetVehiclesByCustomerSearchTermAsync(searchTerm);
 
-        if (filteredVehicles == null || filteredVehicles.Count == 0)
+        if (vehicles == null || vehicles.Count == 0)
         {
             notFoundMessage = "No se encontraron vehículos para el cliente ingresado.";
         }

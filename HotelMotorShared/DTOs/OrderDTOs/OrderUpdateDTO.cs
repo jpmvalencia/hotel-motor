@@ -13,6 +13,5 @@ namespace HotelMotorShared.Dtos.OrderDTOs
 
         [Required(ErrorMessage = "La fecha de vencimiento de la orden es obligatoria")]
         public DateTime DueDate { get; set; }
-        public int VehicleId { get; set; }
     }
 }

@@ -68,14 +68,5 @@ namespace HotelMotorApi.Repositories
             await _applicationDbContext.SaveChangesAsync();
             return true;
         }
-
-        public async Task<Customer?> GetCustomerByVehicleIdAsync(int vehicleId)
-        {
-            var vehicle = await _applicationDbContext.Vehicles
-                .Include(v => v.Customer)
-                .FirstOrDefaultAsync(v => v.Id == vehicleId);
-
-            return vehicle?.Customer;
-        }
     }
 }
