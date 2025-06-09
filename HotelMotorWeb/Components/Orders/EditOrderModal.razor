@@ -20,7 +20,7 @@
                     <div class="modal-body">
                         <EditForm Model="Order" OnValidSubmit="HandleEditSubmit">
                             <DataAnnotationsValidator />
-                            <ValidationSummary />
+                            <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
 
                             <div class="form-floating mb-3">
                                 <InputTextArea id="summary" class="form-control" rows="3" cols="40" @bind-Value="Order.Summary" placeholder="Resumen de la orden" />
