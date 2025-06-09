@@ -25,5 +25,16 @@ namespace HotelMotorApi.Repositories
             await _context.SaveChangesAsync();
             return user;
         }
+
+        public async Task<Boolean> AlternateAdminAsync(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+            if (user == null) return false;
+
+            user.isAdmin = !user.isAdmin;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
