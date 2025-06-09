@@ -96,13 +96,10 @@
 </button>
 
 
-@if (OrderDto is not null)
-{
     <EditOrderModal IsVisible="@isEditModalVisible"
                     Order="OrderDto"
                     OnClose="CloseEditModal"
                     OnUpdate="OnUpdate" />
-}
 
 @code {
     [Parameter]
@@ -148,7 +145,7 @@
             await RedrawChart();
         }
     }
-s
+
     private async Task ConfirmDelete(OrderDTO order)
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Confirmas la eliminación de la orden?"))
