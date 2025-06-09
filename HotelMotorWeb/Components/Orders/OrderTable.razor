@@ -3,6 +3,7 @@
 @using HotelMotorShared.Models
 @inject OrderService OrderService
 @inject IJSRuntime JSRuntime
+@using System.Text
 
 <div style="max-width: 600px; height: 300px; margin-bottom: 1rem;">
     <BarChart @ref="barChart" TItem="decimal" />
@@ -50,6 +51,11 @@
         }
     </tbody>
 </table>
+
+<button class="btn btn-success mb-3" @onclick="ExportOrdersToCsv">
+    Exportar a Excel (CSV)
+</button>
+
 
 @if (OrderDto is not null)
 {
@@ -127,4 +133,48 @@
     {
         isEditModalVisible = false;
     }
+
+    private async Task ExportOrdersToCsv()
+{
+    if (Orders == null || !Orders.Any())
+        return;
+
+    var csvBuilder = new StringBuilder();
+
+    // Agregar encabezados
+    csvBuilder.AppendLine("ID,Fecha de creación,Fecha de vencimiento,Descripción,Estado,Valor total");
+
+    // Agregar cada orden formateada
+    foreach (var order in Orders)
+    {
+        csvBuilder.AppendLine($"{order.Id}," +
+            $"{order.CreatedAt:yyyy-MM-dd}," +
+            $"{order.DueDate:yyyy-MM-dd}," +
+            $"{EscapeCsv(order.Summary)}," +
+            $"{order.Status}," +
+            $"{order.TotalAmount:F2}");
+    }
+
+    var csvData = csvBuilder.ToString();
+
+    // Invocar JS para descargar archivo
+    await JSRuntime.InvokeVoidAsync("downloadFile", "orders.csv", "text/csv", csvData);
+}
+
+    private string EscapeCsv(string? field)
+    {
+        if (string.IsNullOrEmpty(field))
+            return string.Empty;
+
+        bool mustQuote = field.Contains(',') || field.Contains('"') || field.Contains('\n') || field.Contains('\r');
+
+        var escaped = field.Replace("\"", "\"\"");
+
+        if (mustQuote)
+            return $"\"{escaped}\"";
+
+        return escaped;
+    }
+
+
 }
