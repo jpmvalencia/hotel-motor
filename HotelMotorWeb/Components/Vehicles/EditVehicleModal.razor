@@ -18,7 +18,7 @@
 					<div class="modal-body">
 						<EditForm Model="Vehicle" OnValidSubmit="HandleEditSubmit">
 							<DataAnnotationsValidator />
-							<ValidationSummary />
+							<Microsoft.AspNetCore.Components.Forms.ValidationSummary />
 
 							<div class="form-floating mb-3">
 								<InputText class="form-control" id="brand" @bind-Value="Vehicle.Brand" placeholder="Marca" />

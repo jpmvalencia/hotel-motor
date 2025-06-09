@@ -3,6 +3,15 @@
 @using HotelMotorShared.Models
 @inject OrderService OrderService
 @inject IJSRuntime JSRuntime
+@using System.Text
+
+<div style="max-width: 600px; height: 300px; margin-bottom: 1rem;">
+    <BarChart @ref="barChart" TItem="decimal" />
+</div>
+
+<Button class="btn btn-outline-primary mb-3" @onclick="RedrawChart">
+    Actualizar gráfico
+</Button>
 
 <div class="mb-3 d-flex gap-3 align-items-end flex-wrap">
     <div>
@@ -82,10 +91,18 @@
     </tbody>
 </table>
 
-<EditOrderModal IsVisible="@isEditModalVisible"
-                Order="OrderDto"
-                OnClose="CloseEditModal"
-                OnUpdate="OnUpdate" />
+<button class="btn btn-success mb-3" @onclick="ExportOrdersToCsv">
+    Exportar a Excel (CSV)
+</button>
+
+
+@if (OrderDto is not null)
+{
+    <EditOrderModal IsVisible="@isEditModalVisible"
+                    Order="OrderDto"
+                    OnClose="CloseEditModal"
+                    OnUpdate="OnUpdate" />
+}
 
 @code {
     [Parameter]
@@ -102,7 +119,36 @@
 
     private string currentSortColumn = "";
     private bool sortAscending = true;
+    BarChart<decimal>? barChart;
 
+    private async Task RedrawChart()
+    {
+        if (Orders is null || !Orders.Any() || barChart is null)
+            return;
+
+        await barChart.Clear();
+
+        var labels = Orders.Select(o => $"Orden {o.Id}").ToArray();
+        var dataset = new BarChartDataset<decimal>
+            {
+                Label = "Monto total por orden",
+                Data = Orders.Select(o => o.TotalAmount).ToList(),
+                BackgroundColor = ChartColor.FromRgba(54, 162, 235, 0.6f),
+                BorderColor = ChartColor.FromRgba(54, 162, 235, 1f),
+                BorderWidth = 1
+            };
+
+        await barChart.AddLabelsDatasetsAndUpdate(labels, dataset);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RedrawChart();
+        }
+    }
+s
     private async Task ConfirmDelete(OrderDTO order)
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Confirmas la eliminación de la orden?"))
@@ -226,5 +272,46 @@
             dueDateTo = null;
         }
         ApplyFilters();
+    }
+    private async Task ExportOrdersToCsv()
+{
+    if (Orders == null || !Orders.Any())
+        return;
+
+    var csvBuilder = new StringBuilder();
+
+    // Agregar encabezados
+    csvBuilder.AppendLine("ID,Fecha de creación,Fecha de vencimiento,Descripción,Estado,Valor total");
+
+    // Agregar cada orden formateada
+    foreach (var order in Orders)
+    {
+        csvBuilder.AppendLine($"{order.Id}," +
+            $"{order.CreatedAt:yyyy-MM-dd}," +
+            $"{order.DueDate:yyyy-MM-dd}," +
+            $"{EscapeCsv(order.Summary)}," +
+            $"{order.Status}," +
+            $"{order.TotalAmount:F2}");
+    }
+
+    var csvData = csvBuilder.ToString();
+
+    // Invocar JS para descargar archivo
+    await JSRuntime.InvokeVoidAsync("downloadFile", "orders.csv", "text/csv", csvData);
+}
+
+    private string EscapeCsv(string? field)
+    {
+        if (string.IsNullOrEmpty(field))
+            return string.Empty;
+
+        bool mustQuote = field.Contains(',') || field.Contains('"') || field.Contains('\n') || field.Contains('\r');
+
+        var escaped = field.Replace("\"", "\"\"");
+
+        if (mustQuote)
+            return $"\"{escaped}\"";
+
+        return escaped;
     }
 }

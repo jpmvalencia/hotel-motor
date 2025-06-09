@@ -21,7 +21,7 @@
 
                 <EditForm Model="newOrder" OnValidSubmit="HandleValidSubmit">
                     <DataAnnotationsValidator />
-                    <ValidationSummary />
+                    <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
 
                     <div class="form-floating mb-3">
                         <InputTextArea id="summary" class="form-control" rows="3" cols="40" @bind-Value="newOrder.Summary" placeholder="Resumen de la orden" />

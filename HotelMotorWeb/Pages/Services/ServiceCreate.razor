@@ -20,7 +20,7 @@
 
                     <EditForm Model="newService" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
-                        <ValidationSummary />
+                        <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
 
                         <div class="form-floating mb-3">
                             <InputText id="name" class="form-control" @bind-Value="newService.Name" placeholder="Nombre del servicio" />
