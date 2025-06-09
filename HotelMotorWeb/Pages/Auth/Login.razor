@@ -1,0 +1,64 @@
+﻿@page "/login"
+@using HotelMotorShared.Dtos.UserDTOs
+@using HotelMotorWeb.Services.Auth
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@inject CustomAuthProvider CustomAuthProvider
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Iniciar Sesión</h3>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+
+                    <EditForm Model="loginDto" OnValidSubmit="HandleLogin">
+                        <DataAnnotationsValidator />
+                        <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo electrónico</label>
+                            <InputText id="email" @bind-Value="loginDto.Email" class="form-control" placeholder="ejemplo@correo.com" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <InputText id="password" @bind-Value="loginDto.Password" type="password" class="form-control" placeholder="••••••••" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                    </EditForm>
+
+                    <div class="mt-3 text-center">
+                        <span>¿No tienes cuenta?</span>
+                        <NavLink href="/register" class="ms-1">Regístrate</NavLink>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginDto loginDto = new();
+    private string? errorMessage;
+
+    private async Task HandleLogin()
+    {
+        var result = await AuthService.Login(loginDto);
+        if (result != null)
+        {
+            await CustomAuthProvider.MarkUserAsAuthenticated(result.Token);
+            Navigation.NavigateTo("/vehicles");
+        }
+        else
+        {
+            errorMessage = "Credenciales inválidas. Por favor verifica tu correo y contraseña.";
+        }
+    }
+}

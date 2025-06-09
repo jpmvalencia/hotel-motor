@@ -8,4 +8,30 @@
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>HotelMotorShared</Import_RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\CustomerDTOs\CustomerCreateDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\CustomerDTOs\CustomerDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\CustomerDTOs\CustomerUpdateDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\AddVehicleDTO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\OrderDTOs\OrderCreateDTO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\OrderDTOs\OrderDTO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\OrderDTOs\OrderUpdateDTO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DTOs\ServiceDTOs\AddServiceDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DTOs\ServiceDTOs\ServiceDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DTOs\ServiceDTOs\UpdateServiceDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\UpdateVehicleDTO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\UserDTOs\AuthResponseDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\UserDTOs\LoginDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\UserDTOs\RegisterDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\VehicleDTO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Customer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\MailRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Order.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\OrderDetails.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\OrderStatus.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Service.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SmtpSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\User.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Vehicle.cs" />
+  </ItemGroup>
 </Project>

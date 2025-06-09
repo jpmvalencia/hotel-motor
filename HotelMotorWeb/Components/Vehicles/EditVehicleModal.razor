@@ -1,0 +1,93 @@
+﻿@using HotelMotorShared.Dtos
+@using HotelMotorWeb.Services.Vehicles
+@inject VehiclesService VehiclesService
+
+@if (IsVisible)
+{
+    <div>
+		<div class="modal-backdrop fade show" style="background-color: rgba(0, 0, 0, 0.5);"></div>
+		<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: block;">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Editar Vehículo</h5>
+						<button type="button" class="btn btn-link text-dark fs-4 ms-auto me-2" title="Cerrar" @onclick="Close" style="text-decoration: none;">
+							<i class="bi bi-x-lg"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<EditForm Model="Vehicle" OnValidSubmit="HandleEditSubmit">
+							<DataAnnotationsValidator />
+							<Microsoft.AspNetCore.Components.Forms.ValidationSummary />
+
+							<div class="form-floating mb-3">
+								<InputText class="form-control" id="brand" @bind-Value="Vehicle.Brand" placeholder="Marca" />
+								<label for="brand">Marca</label>
+							</div>
+
+							<div class="form-floating mb-3">
+								<InputText class="form-control" id="model" @bind-Value="Vehicle.Model" placeholder="Modelo" />
+								<label for="model">Modelo</label>
+							</div>
+
+							<div class="form-floating mb-3">
+								<InputText class="form-control" id="type" @bind-Value="Vehicle.Type" placeholder="Tipo" />
+								<label for="type">Tipo</label>
+							</div>
+
+							<div class="form-floating mb-3">
+								<InputNumber class="form-control" id="year" @bind-Value="Vehicle.Year" placeholder="Año" />
+								<label for="year">Año</label>
+							</div>
+
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-primary">Actualizar</button>
+								<button type="button" class="btn btn-danger" @onclick="DeleteVehicle">Eliminar</button>
+							</div>
+						</EditForm>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public VehicleDTO Vehicle { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<VehicleDTO> OnUpdate { get; set; }
+	[Parameter] public EventCallback<VehicleDTO> OnDelete { get; set; }
+
+    private async Task HandleEditSubmit()
+    {
+        var updateVehicleDto = new UpdateVehicleDTO
+            {
+                Brand = Vehicle.Brand,
+                Model = Vehicle.Model,
+                Type = Vehicle.Type,
+                Year = Vehicle.Year
+            };
+        var result = await VehiclesService.UpdateVehicleAsync(Vehicle.Id, updateVehicleDto);
+        if (result)
+        {
+			await OnUpdate.InvokeAsync(Vehicle);
+            await OnClose.InvokeAsync();
+        }
+    }
+
+    private async Task DeleteVehicle()
+    {
+        var result = await VehiclesService.DeleteVehicleAsync(Vehicle.Id);
+        if (result)
+        {
+            await OnDelete.InvokeAsync(Vehicle);
+            await OnClose.InvokeAsync();
+        }
+    }
+
+    private void Close()
+    {
+        OnClose.InvokeAsync();
+    }
+}

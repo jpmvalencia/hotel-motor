@@ -1,0 +1,143 @@
+﻿@page "/vehicles"
+@attribute [Authorize]
+@using HotelMotorShared.Dtos
+@using HotelMotorWeb.Components.Vehicles
+@using HotelMotorWeb.Services.Vehicles
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthProvider
+@inject VehiclesService VehiclesService
+@inject NavigationManager Navigation
+
+<h3 class="mb-4">Lista de Vehículos</h3>
+
+<div class="input-group mb-3">
+    <input @bind="searchTerm" class="form-control" placeholder="Buscar por nombre o correo del cliente" />
+    <button class="btn btn-outline-primary" @onclick="SearchVehiclesByCustomer">Buscar</button>
+</div>
+
+<div>
+    <label>Tipo de vehículo:</label>
+    <select class="form-select" value="@carType" @onchange="HandleCarTypeChange">
+        <option value="">Todos</option>
+        <option value="car">Automóvil</option>
+        <option value="motorcycle">Motocicleta</option>
+    </select>
+</div>
+
+@if (isLoading)
+{
+    <p class="text-muted">Cargando...</p>
+}
+else if (!string.IsNullOrEmpty(notFoundMessage))
+{
+    <div class="alert alert-warning">@notFoundMessage</div>
+}
+else if (vehicles != null && vehicles.Any())
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var vehicle in filteredVehicles)
+        {
+            <VehicleCard Vehicle="vehicle" OnUpdate="UpdateVehicle" OnDelete="DeleteVehicle" />
+        }
+    </div>
+}
+else
+{
+    <p class="text-muted">No hay vehículos registrados.</p>
+}
+
+<NavLink href="/vehicles/create"
+         class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center"
+         style="width: 60px; height: 60px;">
+    <span class="fs-4">+</span>
+</NavLink>
+
+@code {
+    private List<VehicleDTO>? vehicles;
+
+    public List<VehicleDTO>? filteredVehicles { get; set; }
+
+    private string statusFilter = "Todos";
+    private string carType = "";
+
+
+    private string searchTerm = string.Empty;
+    private string? notFoundMessage;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+		var authState = await AuthProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+
+		if (!user.Identity?.IsAuthenticated ?? true)
+		{
+			Navigation.NavigateTo("/login", forceLoad: true);
+			return;
+		}
+	
+        await LoadVehiclesAsync();
+        ApplyFilters();
+    }
+
+    private void HandleCarTypeChange(ChangeEventArgs e)
+    {
+        carType = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        if (vehicles == null)
+        {
+            filteredVehicles = null;
+            return;
+        }
+
+        filteredVehicles = vehicles
+            .Where(v => string.IsNullOrEmpty(carType) || v.Type.ToLower() == carType.ToLower())
+            .ToList();
+
+        StateHasChanged();
+    }
+
+    private async Task LoadVehiclesAsync()
+    {
+        isLoading = true;
+        vehicles = await VehiclesService.GetVehiclesAsync();
+        notFoundMessage = null;
+        isLoading = false;
+    }
+
+    private async Task SearchVehiclesByCustomer()
+    {
+        isLoading = true;
+        notFoundMessage = null;
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            await LoadVehiclesAsync();
+            return;
+        }
+
+        filteredVehicles = await VehiclesService.GetVehiclesByCustomerSearchTermAsync(searchTerm);
+
+        if (filteredVehicles == null || filteredVehicles.Count == 0)
+        {
+            notFoundMessage = "No se encontraron vehículos para el cliente ingresado.";
+        }
+
+        isLoading = false;
+    }
+
+    private async Task UpdateVehicle(VehicleDTO updatedVehicle)
+    {
+        await LoadVehiclesAsync();
+    }
+
+    private async Task DeleteVehicle(VehicleDTO vehicle)
+    {
+        await LoadVehiclesAsync();
+    }
+}

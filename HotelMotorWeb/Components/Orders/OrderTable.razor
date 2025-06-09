@@ -1,0 +1,314 @@
+﻿@using HotelMotorShared.Dtos.OrderDTOs
+@using HotelMotorWeb.Services.Orders
+@using HotelMotorShared.Models
+@inject OrderService OrderService
+@inject IJSRuntime JSRuntime
+@using System.Text
+
+<div style="max-width: 600px; height: 300px; margin-bottom: 1rem;">
+    <BarChart @ref="barChart" TItem="decimal" />
+</div>
+
+<Button class="btn btn-outline-primary mb-3" @onclick="RedrawChart">
+    Actualizar gráfico
+</Button>
+
+<div class="mb-3 d-flex gap-3 align-items-end flex-wrap">
+    <div>
+        <label>Estado:</label>
+        <select class="form-select" value="@statusFilter" @onchange="HandleStatusFilterChange">
+            <option value="Todos">Todos</option>
+            <option value="Pending">Pendiente</option>
+            <option value="InProgress">En progreso</option>
+            <option value="Completed">Compleatada</option>
+        </select>
+    </div>
+    <div>
+        <label>Vencimiento desde:</label>
+        <input type="date" class="form-control" value="@dueDateFrom?.ToString("yyyy-MM-dd")" @onchange="HandleDueDateFromChange" />
+    </div>
+    <div>
+        <label>Hasta:</label>
+        <input type="date" class="form-control" value="@dueDateTo?.ToString("yyyy-MM-dd")" @onchange="HandleDueDateToChange" />
+    </div>
+</div>
+
+<table class="table table-hover table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th @onclick="() => SortTable(nameof(OrderDto.Id))"
+                style="cursor: pointer; white-space: nowrap;">
+                ID @SortIcon(nameof(OrderDto.Id))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.CreatedAt))"
+                style="cursor: pointer; white-space: nowrap;">
+                Fecha de creación @SortIcon(nameof(OrderDto.CreatedAt))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.DueDate))"
+                style="cursor: pointer; white-space: nowrap;">
+                Fecha de vencimiento @SortIcon(nameof(OrderDto.DueDate))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.Summary))"
+                style="cursor: pointer; white-space: nowrap;">
+                Descripción @SortIcon(nameof(OrderDto.Summary))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.Status))"
+                style="cursor: pointer; white-space: nowrap;">
+                Estado @SortIcon(nameof(OrderDto.Status))
+            </th>
+            <th @onclick="() => SortTable(nameof(OrderDto.TotalAmount))"
+                style="cursor: pointer; white-space: nowrap;">
+                Valor total @SortIcon(nameof(OrderDto.TotalAmount))
+            </th>
+
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in filteredOrders)
+        {
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.CreatedAt.ToString("dd/MM/yyyy")</td>
+                <td>@order.DueDate.ToString("dd/MM/yyyy")</td>
+                <td>@order.Summary</td> 
+                <td>
+                    <span class="badge bg-@GetStatusColor(order.Status)">
+                        @order.Status
+                    </span>
+                </td>
+                <th>@order.TotalAmount</th>
+                <td>
+                    <button class="btn btn-primary btn-sm" @onclick="() => ShowEditModal(order)">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => ConfirmDelete(order)">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-success mb-3" @onclick="ExportOrdersToCsv">
+    Exportar a Excel (CSV)
+</button>
+
+
+    <EditOrderModal IsVisible="@isEditModalVisible"
+                    Order="OrderDto"
+                    OnClose="CloseEditModal"
+                    OnUpdate="OnUpdate" />
+
+@code {
+    [Parameter]
+    public IEnumerable<OrderDTO>? Orders { get; set; }
+    public IEnumerable<OrderDTO>? filteredOrders { get; set; }
+    public OrderDTO? OrderDto;
+    [Parameter] public EventCallback<OrderDTO> OnUpdate { get; set; }
+    [Parameter] public EventCallback<OrderDTO> OnDelete { get; set; }
+    private bool isEditModalVisible = false;
+
+    private string statusFilter = "Todos";
+    private DateTime? dueDateFrom = null;
+    private DateTime? dueDateTo = null;
+
+    private string currentSortColumn = "";
+    private bool sortAscending = true;
+    BarChart<decimal>? barChart;
+
+    private async Task RedrawChart()
+    {
+        if (Orders is null || !Orders.Any() || barChart is null)
+            return;
+
+        await barChart.Clear();
+
+        var labels = Orders.Select(o => $"Orden {o.Id}").ToArray();
+        var dataset = new BarChartDataset<decimal>
+            {
+                Label = "Monto total por orden",
+                Data = Orders.Select(o => o.TotalAmount).ToList(),
+                BackgroundColor = ChartColor.FromRgba(54, 162, 235, 0.6f),
+                BorderColor = ChartColor.FromRgba(54, 162, 235, 1f),
+                BorderWidth = 1
+            };
+
+        await barChart.AddLabelsDatasetsAndUpdate(labels, dataset);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RedrawChart();
+        }
+    }
+
+    private async Task ConfirmDelete(OrderDTO order)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Confirmas la eliminación de la orden?"))
+        {
+            var result = await OrderService.DeleteOrderAsync(order.Id);
+            if (result)
+            {
+                await OnDelete.InvokeAsync(order);
+            }
+        }
+    }
+
+    private string GetStatusColor(string status) => Enum.TryParse<OrderStatus>(status, out var parsedStatus) ? parsedStatus switch
+    {
+        OrderStatus.Pending => "warning",
+        OrderStatus.Completed => "success",
+        OrderStatus.InProgress => "primary",
+        _ => "secondary"
+    } : "secondary";
+
+    protected override void OnParametersSet()
+    {
+        if (Orders != null)
+        {
+            ApplyFilters();
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        filteredOrders = Orders?
+            .Where(i =>
+                (statusFilter == "Todos" || i.Status == statusFilter) &&
+                (!dueDateFrom.HasValue || i.DueDate >= dueDateFrom.Value) &&
+                (!dueDateTo.HasValue || i.DueDate <= dueDateTo.Value)
+            ).ToList();
+
+        if (!string.IsNullOrEmpty(currentSortColumn))
+        {
+            SortTable(currentSortColumn, reapply: true);
+        }
+    }
+
+    private void SortTable(string columnName, bool reapply = false)
+    {
+        if (!reapply)
+        {
+            if (currentSortColumn == columnName)
+                sortAscending = !sortAscending;
+            else
+            {
+                currentSortColumn = columnName;
+                sortAscending = true;
+            }
+        }
+
+        filteredOrders = sortAscending
+            ? filteredOrders?.OrderBy(i => GetPropertyValue(i, columnName)).ToList()
+            : filteredOrders?.OrderByDescending(i => GetPropertyValue(i, columnName)).ToList();
+    }
+
+    private object GetPropertyValue(OrderDTO order, string propertyName)
+    {
+        return typeof(OrderDTO).GetProperty(propertyName)?.GetValue(order, null);
+    }
+
+    private RenderFragment SortIcon(string columnName) => builder =>
+    {
+        string iconClass = "bi bi-caret-up";
+        string colorClass = "text-secondary";
+
+        if (currentSortColumn == columnName)
+        {
+            iconClass = sortAscending ? "bi bi-caret-up-fill" : "bi bi-caret-down-fill";
+            colorClass = "text-white";
+        }
+
+        builder.OpenElement(0, "i");
+        builder.AddAttribute(1, "class", $"{iconClass} {colorClass} ms-2");
+        builder.CloseElement();
+    };
+
+    private void ShowEditModal(OrderDTO order)
+    {
+        OrderDto = order;
+        isEditModalVisible = true;
+    }
+
+    private void CloseEditModal()
+    {
+        isEditModalVisible = false;
+    }
+
+    private void HandleStatusFilterChange(ChangeEventArgs e)
+    {
+        statusFilter = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    private void HandleDueDateFromChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            dueDateFrom = date;
+        }
+        else
+        {
+            dueDateFrom = null;
+        }
+        ApplyFilters();
+    }
+
+    private void HandleDueDateToChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            dueDateTo = date;
+        }
+        else
+        {
+            dueDateTo = null;
+        }
+        ApplyFilters();
+    }
+    private async Task ExportOrdersToCsv()
+{
+    if (Orders == null || !Orders.Any())
+        return;
+
+    var csvBuilder = new StringBuilder();
+
+    // Agregar encabezados
+    csvBuilder.AppendLine("ID,Fecha de creación,Fecha de vencimiento,Descripción,Estado,Valor total");
+
+    // Agregar cada orden formateada
+    foreach (var order in Orders)
+    {
+        csvBuilder.AppendLine($"{order.Id}," +
+            $"{order.CreatedAt:yyyy-MM-dd}," +
+            $"{order.DueDate:yyyy-MM-dd}," +
+            $"{EscapeCsv(order.Summary)}," +
+            $"{order.Status}," +
+            $"{order.TotalAmount:F2}");
+    }
+
+    var csvData = csvBuilder.ToString();
+
+    // Invocar JS para descargar archivo
+    await JSRuntime.InvokeVoidAsync("downloadFile", "orders.csv", "text/csv", csvData);
+}
+
+    private string EscapeCsv(string? field)
+    {
+        if (string.IsNullOrEmpty(field))
+            return string.Empty;
+
+        bool mustQuote = field.Contains(',') || field.Contains('"') || field.Contains('\n') || field.Contains('\r');
+
+        var escaped = field.Replace("\"", "\"\"");
+
+        if (mustQuote)
+            return $"\"{escaped}\"";
+
+        return escaped;
+    }
+}

@@ -1,0 +1,71 @@
+﻿@page "/services/create"
+@using HotelMotorShared.DTOs.ServiceDTOs
+@using HotelMotorWeb.Services.Services
+@inject ServiceService ServiceService
+@inject NavigationManager NavigationManager
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h4 class="card-title mb-4 fw-semibold text-center">Nuevo Servicio</h4>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessage
+                        </div>
+                    }
+
+                    <EditForm Model="newService" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
+
+                        <div class="form-floating mb-3">
+                            <InputText id="name" class="form-control" @bind-Value="newService.Name" placeholder="Nombre del servicio" />
+                            <label for="name">Nombre</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <InputTextArea id="description" class="form-control" style="height: 100px;" @bind-Value="newService.Description" placeholder="Descripción" />
+                            <label for="description">Descripción</label>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <InputNumber id="price" class="form-control" @bind-Value="newService.Price" placeholder="Precio" />
+                            <label for="price">Precio</label>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary px-4">Guardar</button>
+                            <button type="button" class="btn btn-outline-secondary" @onclick='() => NavigationManager.NavigateTo("/services")'>
+                                Cancelar
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private AddServiceDto newService = new();
+    private string? errorMessage;
+
+    private async Task HandleValidSubmit()
+    {
+        errorMessage = null;
+
+        var created = await ServiceService.CreateServiceAsync(newService);
+        if (created)
+        {
+            NavigationManager.NavigateTo("/services");
+        }
+        else
+        {
+            errorMessage = "Error al crear el servicio. Por favor, intenta de nuevo.";
+        }
+    }
+}

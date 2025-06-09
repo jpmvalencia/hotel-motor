@@ -1,0 +1,170 @@
+﻿@using HotelMotorShared.Models
+@using HotelMotorShared.DTOs.ServiceDTOs;
+@using HotelMotorShared.Dtos.OrderDTOs
+@using HotelMotorWeb.Services.Orders
+@using HotelMotorWeb.Services.Services
+@inject OrderService OrderService
+@inject ServiceService ServiceService
+
+@if (IsVisible)
+{
+    <div>
+        <div class="modal-backdrop fade show" style="background-color: rgba(0, 0, 0, 0.5);"></div>
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar orden</h5>
+                        <button type="button" class="btn-close" @onclick="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="Order" OnValidSubmit="HandleEditSubmit">
+                            <DataAnnotationsValidator />
+                            <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
+
+                            <div class="form-floating mb-3">
+                                <InputTextArea id="summary" class="form-control" rows="3" cols="40" @bind-Value="Order.Summary" placeholder="Resumen de la orden" />
+                                <label for="summary">Resumen</label>
+                                <ValidationMessage For="@(() => Order.Summary)" />
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <InputDate id="due-date" class="form-control" @bind-Value="Order.DueDate" />
+                                <label for="due-date">Fecha de vencimiento</label>
+                                <ValidationMessage For="@(() => Order.DueDate)" />
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <InputSelect @bind-Value="Order.Status" class="form-control">
+                                    <option value="">Select Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="InProgress">InProgress</option>
+                                    <option value="Completed">Completed</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => Order.Status)" />
+
+                            </div>
+
+                            <label for="services">Servicios</label>
+
+                            @foreach (var service in Services)
+                            {
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input"
+                                    type="checkbox"
+                                    id="service-@service.Id"
+                                    checked="@IsServiceSelected(service.Id)"
+                                    @onchange="@(e => ToggleServiceSelection(service.Id, (bool)e.Value))" />
+                                    <label class="form-check-label" for="service-@service.Id">
+                                        @service.Name - @service.Price.ToString("C")
+                                    </label>
+                                </div>
+                            }
+
+                            <ValidationMessage For="@(() => Order.Services)" />
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Actualizar</button>
+
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public OrderDTO Order { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<OrderDTO> OnUpdate { get; set; }
+
+    private List<ServiceDto> Services { get; set; } = new List<ServiceDto>();
+    private List<int> OrderServices { get; set; } = new List<int>();
+    private List<int> SelectedServiceIds { get; set; } = new List<int>();
+    private List<int> ServicesToDelete { get; set; } = new List<int>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Order = new OrderDTO();
+        await LoadServices();
+    }
+
+    private bool IsServiceSelected(int serviceId)
+    {
+        return Order.Services.Any(s => s.Id == serviceId);
+    }
+
+    private void ToggleServiceSelection(int serviceId, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!Order.Services.Any(s => s.Id == serviceId))
+            {
+                SelectedServiceIds.Add(serviceId);
+                ServicesToDelete.Remove(serviceId);
+            }
+        }
+        else
+        {
+            var serviceToRemove = Order.Services.FirstOrDefault(s => s.Id == serviceId);
+            if (serviceToRemove != null)
+            {
+                SelectedServiceIds.Remove(serviceToRemove.Id);
+                ServicesToDelete.Add(serviceToRemove.Id);
+            }
+        }
+    }
+
+    private async Task HandleEditSubmit()
+    {
+        var updateDto = new OrderUpdateDTO
+            {
+                Summary = Order.Summary,
+                DueDate = Order.DueDate,
+                Status = Enum.TryParse<OrderStatus>(Order.Status, out var status) ? status : (OrderStatus?)null,
+                VehicleId = Order.Vehicle.Id
+            };
+        var result = await OrderService.UpdateOrderAsync(Order.Id, updateDto);
+
+        List<int> serviceIds = null;
+
+        if (SelectedServiceIds != null && SelectedServiceIds.Count > 0)
+        {
+            serviceIds = SelectedServiceIds.ToList();
+        }
+        bool result2 = true;
+        if (serviceIds != null && serviceIds.Count > 0)
+        {
+            result2 = await OrderService.AssignServicesToOrderAsync(Order.Id, serviceIds);
+        }
+        bool result3 = true;
+        if (ServicesToDelete != null && ServicesToDelete.Count > 0)
+        {
+            foreach(var _ in ServicesToDelete)
+                {
+                    result3 = await OrderService.RemoveServiceFromOrderAsync(Order.Id, _);
+                }
+        }
+        if (result && result2 && result3)
+        {
+            await OnUpdate.InvokeAsync(Order);
+            await OnClose.InvokeAsync();
+            SelectedServiceIds?.Clear();
+            ServicesToDelete?.Clear();
+        }
+    }
+
+
+    private async Task LoadServices()
+    {
+        var services = await ServiceService.GetServicesAsync();
+
+        var assignedServiceIds = Order.Services.Select(s => s.Id).ToHashSet();
+        Services = services.Where(service => !assignedServiceIds.Contains(service.Id)).ToList();
+    }
+
+	private void Close() => OnClose.InvokeAsync();
+}
